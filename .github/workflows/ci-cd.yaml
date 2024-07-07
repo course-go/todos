@@ -57,6 +57,11 @@ jobs:
       - name: Test
         run: make test
 
+      - name: Coveralls
+        uses: coverallsapp/github-action@v2
+        with:
+          file: coverage.out
+
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
