@@ -25,5 +25,5 @@ go.work.sum
 .idea
 .vscode
 
-# Data
+# Observability data
 data

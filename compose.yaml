@@ -1,0 +1,63 @@
+name: todos
+
+services:
+  api:
+    build: 
+      context: "."
+    restart: "unless-stopped"
+    depends_on: 
+      postgres:
+        condition: service_healthy
+    volumes:
+      - "./configs/todos:/etc/course-go/todos"
+    ports:
+      - "8080:8080"
+    networks: [ todos ]
+    profiles: [ todos, all ] 
+
+  postgres:
+    image: "postgres:16-alpine"
+    restart: "unless-stopped"
+    environment:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_DB: todos
+    ports:
+      - "5432:5432"
+    networks: [ todos ]
+    profiles: [ todos, dependencies, all ]   
+    healthcheck:
+      test: [ "CMD-SHELL", "sh -c 'pg_isready -U postgres -d todos'" ]
+      interval: 1s
+      timeout: 2s
+      retries: 5
+
+  prometheus:
+    image: prom/prometheus
+    restart: unless-stopped
+    command: --config.file=/etc/prometheus/prometheus.yaml
+    ports:
+      - "9090:9090"
+    networks: [ todos ]
+    profiles: [ dependencies, all ]   
+    volumes:
+      - ./configs/prometheus:/etc/prometheus
+      - ./data/prometheus:/prometheus
+
+  grafana:
+    image: grafana/grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    networks: [ todos ]
+    profiles: [ dependencies, all ]   
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=grafana
+    volumes:
+      - ./configs/grafana:/etc/grafana/provisioning/datasources
+      - ./data/grafana:/var/lib/grafana
+
+networks:
+  todos:
+    driver: bridge

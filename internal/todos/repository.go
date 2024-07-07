@@ -1,25 +1,52 @@
 package todos
 
 import (
+	"context"
 	"errors"
+	"fmt"
+	"log/slog"
 	"slices"
 	"sync"
 	"time"
 
+	"github.com/course-go/todos/internal/config"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 )
 
 var ErrTodoNotFound = errors.New("todo with given UUID does not exist")
 
 type Repository struct {
-	mu    sync.Mutex
-	todos []Todo
+	logger *slog.Logger
+	config *config.Config
+	conn   *pgx.Conn
+	mu     sync.Mutex
+	todos  []Todo
 }
 
-func NewRepository() *Repository {
-	return &Repository{
-		todos: make([]Todo, 0),
+func NewRepository(ctx context.Context, logger *slog.Logger, config *config.Config) (repository *Repository, err error) {
+	databaseURL := fmt.Sprintf("%s://%s:%s@%s:%s/%s",
+		config.Database.Protocol,
+		config.Database.User,
+		config.Database.Password,
+		config.Database.Host,
+		config.Database.Port,
+		config.Database.Name,
+	)
+	conn, err := pgx.Connect(ctx, databaseURL)
+	if err != nil {
+		err = fmt.Errorf("failed connecting to database: %w", err)
+		return
 	}
+
+	logger = logger.With("component", "repository")
+	repository = &Repository{
+		logger: logger,
+		config: config,
+		conn:   conn,
+		todos:  make([]Todo, 0),
+	}
+	return
 }
 
 func (r *Repository) getTodos() (todos []Todo) {

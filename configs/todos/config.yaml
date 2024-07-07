@@ -1,0 +1,14 @@
+service:
+  name: todos
+  port: 8080
+
+logging:
+  level: info
+
+database:
+  protocol: postgres
+  user: postgres
+  password: postgres
+  host: postgres
+  port: 5432
+  name: todos

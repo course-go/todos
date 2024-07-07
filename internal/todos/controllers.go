@@ -8,16 +8,22 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/course-go/todos/internal/config"
 	"github.com/google/uuid"
 )
 
 type API struct {
+	logger     *slog.Logger
+	config     *config.Config
 	repository *Repository
 }
 
-func NewRouter(repository *Repository) *http.ServeMux {
+func NewRouter(logger *slog.Logger, config *config.Config, repository *Repository) *http.ServeMux {
 	mux := http.NewServeMux()
+	logger = logger.With("component", "api")
 	api := &API{
+		logger:     logger,
+		config:     config,
 		repository: repository,
 	}
 	mux.HandleFunc("GET /v1/todos", api.getTodos)
