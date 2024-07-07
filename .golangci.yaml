@@ -14,8 +14,6 @@ linters:
     - gochecknoglobals
     - wsl
     - nakedret
-    # - wrapcheck
-    # - whitespace
     # deprecated
     - execinquery
     - gomnd
