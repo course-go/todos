@@ -1,0 +1,36 @@
+run:
+  timeout: 3m
+  tests: false
+
+linters:
+  enable-all: true
+  disable:
+    # restrictive
+    - exhaustruct
+    - varnamelen
+    - nlreturn
+    - funlen
+    - nonamedreturns
+    - gochecknoglobals
+    - wsl
+    - nakedret
+    # - wrapcheck
+    # - whitespace
+    # deprecated
+    - execinquery
+    - gomnd
+
+linters-settings:
+  depguard:
+    rules:
+      main:
+        list-mode: strict
+        files:
+           - $all
+        allow:
+          - $gostd
+          - github.com/course-go/todos
+          - github.com/google/uuid
+          - github.com/jackc/pgx/v5
+output:
+    sort-results: true
