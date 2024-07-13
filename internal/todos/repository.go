@@ -24,7 +24,11 @@ type Repository struct {
 	todos  []Todo
 }
 
-func NewRepository(ctx context.Context, logger *slog.Logger, config *config.Config) (repository *Repository, err error) {
+func NewRepository(
+	ctx context.Context,
+	logger *slog.Logger,
+	config *config.Config,
+) (repository *Repository, err error) {
 	databaseURL := fmt.Sprintf("%s://%s:%s@%s:%s/%s",
 		config.Database.Protocol,
 		config.Database.User,
