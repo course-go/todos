@@ -65,7 +65,13 @@ func New(
 }
 
 func (r *Repository) GetTodos(ctx context.Context) (t []todos.Todo, err error) {
-	rows, err := r.pool.Query(ctx, "SELECT * FROM todos WHERE deleted_at IS NOT NULL")
+	rows, err := r.pool.Query(ctx,
+		`
+		SELECT id, description, completed_at, created_at, updated_at
+		FROM todos
+		WHERE deleted_at IS NULL
+		`,
+	)
 	if err != nil {
 		err = fmt.Errorf("failed querying database: %w", err)
 		return
@@ -73,23 +79,74 @@ func (r *Repository) GetTodos(ctx context.Context) (t []todos.Todo, err error) {
 
 	// Use append to avoid returning nil slice
 	t = make([]todos.Todo, 0)
-	return pgx.AppendRows(t, rows, pgx.RowTo[todos.Todo])
+	return pgx.AppendRows(t, rows, pgx.RowToStructByName[todos.Todo])
 }
 
-func (r *Repository) GetTodo(id uuid.UUID) (todo todos.Todo, err error) { //nolint
-	return todos.Todo{}, nil
+func (r *Repository) GetTodo(ctx context.Context, id uuid.UUID) (t todos.Todo, err error) {
+	rows, err := r.pool.Query(ctx,
+		`
+		SELECT id, description, completed_at, created_at, updated_at
+		FROM todos
+		WHERE id=$1 AND deleted_at IS NULL
+		`,
+		id,
+	)
+	if err != nil {
+		err = fmt.Errorf("failed querying database: %w", err)
+		return
+	}
+
+	return pgx.CollectOneRow(rows, pgx.RowToStructByName[todos.Todo])
 }
 
-func (r *Repository) CreateTodo(todo todos.Todo) (createdTodo todos.Todo) { //nolint
-	return todos.Todo{}
+func (r *Repository) CreateTodo(ctx context.Context, todo todos.Todo) (createdTodo todos.Todo, err error) {
+	rows, err := r.pool.Query(ctx,
+		`
+		INSERT INTO todos (description)
+		VALUES ($1)
+		RETURNING id, description, completed_at, created_at, updated_at
+		`,
+		todo.Description,
+	)
+	if err != nil {
+		err = fmt.Errorf("failed querying database: %w", err)
+		return
+	}
+
+	return pgx.CollectOneRow(rows, pgx.RowToStructByName[todos.Todo])
 }
 
-func (r *Repository) SaveTodo(todo todos.Todo) (savedTodo todos.Todo) { //nolint
-	return todos.Todo{}
+func (r *Repository) SaveTodo(ctx context.Context, todo todos.Todo) (savedTodo todos.Todo, err error) {
+	rows, err := r.pool.Query(ctx,
+		`
+		UPDATE todos (description, completed_at, updated_at)
+		VALUES ($2, $3, Now())
+		WHERE id=$1
+		RETURNING id, description, completed_at, created_at, updated_at
+		`,
+		todo.ID,
+		todo.Description,
+		todo.CompletedAt,
+	)
+	if err != nil {
+		err = fmt.Errorf("failed querying database: %w", err)
+		return
+	}
+
+	return pgx.CollectOneRow(rows, pgx.RowToStructByName[todos.Todo])
 }
 
-func (r *Repository) DeleteTodo(id uuid.UUID) (err error) { //nolint
-	return nil
+func (r *Repository) DeleteTodo(ctx context.Context, id uuid.UUID) error {
+	_, err := r.pool.Exec(ctx,
+		`
+		UPDATE todos (deleted_at)
+		VALUES (Now())
+		WHERE id=$1
+		`,
+		id,
+	)
+
+	return err
 }
 
 func migrateRepository(logger *slog.Logger, config *config.Config) error {
