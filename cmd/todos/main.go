@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/course-go/todos/internal/config"
 	"github.com/course-go/todos/internal/logger"
@@ -47,11 +48,19 @@ func main() {
 		config.Service.Host,
 		config.Service.Port,
 	)
+	server := &http.Server{
+		Addr:              hostname,
+		ReadTimeout:       1 * time.Second,
+		ReadHeaderTimeout: 2 * time.Second,
+		WriteTimeout:      1 * time.Second,
+		IdleTimeout:       30 * time.Second,
+		Handler:           mux,
+	}
 	logger.Info("starting server",
 		"service", config.Service.Name,
 		"hostname", hostname,
 	)
-	err = http.ListenAndServe(hostname, mux)
+	err = server.ListenAndServe()
 	if err != nil {
 		logger.Error("failed running server",
 			"error", err,
