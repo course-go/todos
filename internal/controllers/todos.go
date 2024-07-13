@@ -22,14 +22,20 @@ type UpdateTodoRequest struct {
 	CompletedAt *time.Time `json:"completedAt"`
 }
 
-func (a API) getTodos(w http.ResponseWriter, _ *http.Request) {
-	todos := a.repository.GetTodos()
+func (a API) getTodos(w http.ResponseWriter, r *http.Request) {
+	todos, err := a.repository.GetTodos(r.Context())
+	if err != nil {
+		code := http.StatusInternalServerError
+		w.WriteHeader(code)
+		w.Write(responseErrorBytes(code))
+		return
+	}
+
 	response := Response{
 		Data: map[string]any{
 			"todos": todos,
 		},
 	}
-
 	bytes, err := json.Marshal(response)
 	if err != nil {
 		code := http.StatusInternalServerError

@@ -13,6 +13,7 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/database/pgx/v5" // Used to register "pgx5" driver used for migrations.
 	"github.com/golang-migrate/migrate/v4/source/iofs"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -63,8 +64,16 @@ func New(
 	return
 }
 
-func (r *Repository) GetTodos() (todos []todos.Todo) {
-	return nil
+func (r *Repository) GetTodos(ctx context.Context) (t []todos.Todo, err error) {
+	rows, err := r.pool.Query(ctx, "SELECT * FROM todos WHERE deleted_at IS NOT NULL")
+	if err != nil {
+		err = fmt.Errorf("failed querying database: %w", err)
+		return
+	}
+
+	t, err = pgx.CollectRows(rows, pgx.RowTo[todos.Todo])
+	r.logger.Info("got todos", "todos", t)
+	return nil, nil
 }
 
 func (r *Repository) GetTodo(id uuid.UUID) (todo todos.Todo, err error) { //nolint
