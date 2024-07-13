@@ -25,6 +25,9 @@ type UpdateTodoRequest struct {
 func (a API) getTodos(w http.ResponseWriter, r *http.Request) {
 	todos, err := a.repository.GetTodos(r.Context())
 	if err != nil {
+		slog.Error("failed retrieving todos",
+			"error", err,
+		)
 		code := http.StatusInternalServerError
 		w.WriteHeader(code)
 		w.Write(responseErrorBytes(code))
@@ -33,6 +36,9 @@ func (a API) getTodos(w http.ResponseWriter, r *http.Request) {
 
 	bytes, err := responseDataBytes("todos", todos)
 	if err != nil {
+		slog.Error("failed constructing response",
+			"error", err,
+		)
 		code := http.StatusInternalServerError
 		w.WriteHeader(code)
 		w.Write(responseErrorBytes(code))
@@ -45,7 +51,7 @@ func (a API) getTodos(w http.ResponseWriter, r *http.Request) {
 func (a API) getTodo(w http.ResponseWriter, r *http.Request) {
 	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		slog.Error("could not parse uuid",
+		slog.Error("failed parsing uuid",
 			"uuid", r.PathValue("id"),
 			"error", err,
 		)
@@ -55,11 +61,11 @@ func (a API) getTodo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	todo, err := a.repository.GetTodo(id)
+	todo, err := a.repository.GetTodo(r.Context(), id)
 	if errors.Is(err, repository.ErrTodoNotFound) {
-		slog.Error("todo with given uuid does not exist",
-			"uuid", id.String(),
+		slog.Error("todo with given id does not exist",
 			"error", err,
+			"id", id.String(),
 		)
 		code := http.StatusNotFound
 		w.WriteHeader(code)
@@ -68,7 +74,7 @@ func (a API) getTodo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err != nil {
-		slog.Error("could not retrieve todos from database",
+		slog.Error("failed retrieving todo",
 			"error", err,
 		)
 		code := http.StatusInternalServerError
@@ -79,6 +85,9 @@ func (a API) getTodo(w http.ResponseWriter, r *http.Request) {
 
 	bytes, err := responseDataBytes("todo", todo)
 	if err != nil {
+		slog.Error("failed constructing response",
+			"error", err,
+		)
 		code := http.StatusInternalServerError
 		w.WriteHeader(code)
 		w.Write(responseErrorBytes(code))
@@ -92,6 +101,9 @@ func (a API) createTodo(w http.ResponseWriter, r *http.Request) {
 	body := r.Body
 	bodyBytes, err := io.ReadAll(body)
 	if err != nil {
+		slog.Error("failed reading request body",
+			"error", err,
+		)
 		code := http.StatusInternalServerError
 		w.WriteHeader(code)
 		w.Write(responseErrorBytes(code))
@@ -102,7 +114,7 @@ func (a API) createTodo(w http.ResponseWriter, r *http.Request) {
 	var request CreateTodoRequest
 	err = json.Unmarshal(bodyBytes, &request)
 	if err != nil {
-		slog.Error("unbindable body received",
+		slog.Error("failed binding request body",
 			"error", err,
 		)
 		code := http.StatusBadRequest
@@ -114,9 +126,22 @@ func (a API) createTodo(w http.ResponseWriter, r *http.Request) {
 	todo := todos.Todo{
 		Description: request.Description,
 	}
-	todo = a.repository.CreateTodo(todo)
+	todo, err = a.repository.CreateTodo(r.Context(), todo)
+	if err != nil {
+		slog.Error("failed creating todo",
+			"error", err,
+		)
+		code := http.StatusInternalServerError
+		w.WriteHeader(code)
+		w.Write(responseErrorBytes(code))
+		return
+	}
+
 	bytes, err := responseDataBytes("todo", todo)
 	if err != nil {
+		slog.Error("failed constructing response",
+			"error", err,
+		)
 		code := http.StatusInternalServerError
 		w.WriteHeader(code)
 		w.Write(responseErrorBytes(code))
@@ -130,7 +155,7 @@ func (a API) createTodo(w http.ResponseWriter, r *http.Request) {
 func (a API) updateTodo(w http.ResponseWriter, r *http.Request) {
 	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		slog.Error("could not parse uuid",
+		slog.Error("failed parsing uuid",
 			"uuid", r.PathValue("id"),
 			"error", err,
 		)
@@ -143,6 +168,9 @@ func (a API) updateTodo(w http.ResponseWriter, r *http.Request) {
 	body := r.Body
 	bodyBytes, err := io.ReadAll(body)
 	if err != nil {
+		slog.Error("failed reading request body",
+			"error", err,
+		)
 		code := http.StatusInternalServerError
 		w.WriteHeader(code)
 		w.Write(responseErrorBytes(code))
@@ -153,7 +181,7 @@ func (a API) updateTodo(w http.ResponseWriter, r *http.Request) {
 	var request UpdateTodoRequest
 	err = json.Unmarshal(bodyBytes, &request)
 	if err != nil {
-		slog.Error("unbindable body received",
+		slog.Error("failed binding request body",
 			"error", err,
 		)
 		code := http.StatusBadRequest
@@ -167,9 +195,23 @@ func (a API) updateTodo(w http.ResponseWriter, r *http.Request) {
 		Description: request.Description,
 		CompletedAt: request.CompletedAt,
 	}
-	todo = a.repository.SaveTodo(todo)
+	todo, err = a.repository.SaveTodo(r.Context(), todo)
+	if err != nil {
+		slog.Error("failed saving todo",
+			"error", err,
+			"id", todo.ID,
+		)
+		code := http.StatusInternalServerError
+		w.WriteHeader(code)
+		w.Write(responseErrorBytes(code))
+		return
+	}
+
 	bytes, err := responseDataBytes("todo", todo)
 	if err != nil {
+		slog.Error("failed constructing response",
+			"error", err,
+		)
 		code := http.StatusInternalServerError
 		w.WriteHeader(code)
 		w.Write(responseErrorBytes(code))
@@ -183,9 +225,9 @@ func (a API) updateTodo(w http.ResponseWriter, r *http.Request) {
 func (a API) deleteTodo(w http.ResponseWriter, r *http.Request) {
 	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		slog.Error("could not parse uuid",
-			"uuid", r.PathValue("id"),
+		slog.Error("failed parsing uuid",
 			"error", err,
+			"uuid", r.PathValue("id"),
 		)
 		code := http.StatusBadRequest
 		w.WriteHeader(code)
@@ -193,8 +235,11 @@ func (a API) deleteTodo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = a.repository.DeleteTodo(id)
+	err = a.repository.DeleteTodo(r.Context(), id)
 	if errors.Is(err, repository.ErrTodoNotFound) {
+		slog.Debug("no matching id for todo",
+			"id", id,
+		)
 		code := http.StatusNotFound
 		w.WriteHeader(code)
 		w.Write(responseErrorBytes(code))
@@ -202,6 +247,10 @@ func (a API) deleteTodo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err != nil {
+		slog.Error("failed deleting todo",
+			"error", err,
+			"id", id,
+		)
 		code := http.StatusInternalServerError
 		w.WriteHeader(code)
 		w.Write(responseErrorBytes(code))
