@@ -59,5 +59,5 @@ func responseDataBytes(name string, data any) (bytes []byte, err error) {
 		},
 	}
 
-	return json.Marshal(response)
+	return json.Marshal(response) //nolint: wrapcheck
 }

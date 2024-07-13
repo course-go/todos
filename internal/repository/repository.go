@@ -23,6 +23,7 @@ var embedMigrations embed.FS
 var (
 	ErrMigrations   = errors.New("failed migrating database schema")
 	ErrTodoNotFound = errors.New("todo with given UUID does not exist")
+	ErrDatabase     = errors.New("failed querying database")
 )
 
 type Repository struct {
@@ -79,7 +80,13 @@ func (r *Repository) GetTodos(ctx context.Context) (t []todos.Todo, err error) {
 
 	// Use append to avoid returning nil slice
 	t = make([]todos.Todo, 0)
-	return pgx.AppendRows(t, rows, pgx.RowToStructByName[todos.Todo])
+	t, err = pgx.AppendRows(t, rows, pgx.RowToStructByName[todos.Todo])
+	if err != nil {
+		err = fmt.Errorf("%w: %w", ErrDatabase, err)
+		return
+	}
+
+	return
 }
 
 func (r *Repository) GetTodo(ctx context.Context, id uuid.UUID) (t todos.Todo, err error) {
@@ -96,7 +103,13 @@ func (r *Repository) GetTodo(ctx context.Context, id uuid.UUID) (t todos.Todo, e
 		return
 	}
 
-	return pgx.CollectOneRow(rows, pgx.RowToStructByName[todos.Todo])
+	t, err = pgx.CollectOneRow(rows, pgx.RowToStructByName[todos.Todo])
+	if err != nil {
+		err = fmt.Errorf("%w: %w", ErrDatabase, err)
+		return
+	}
+
+	return
 }
 
 func (r *Repository) CreateTodo(ctx context.Context, todo todos.Todo) (createdTodo todos.Todo, err error) {
@@ -113,7 +126,13 @@ func (r *Repository) CreateTodo(ctx context.Context, todo todos.Todo) (createdTo
 		return
 	}
 
-	return pgx.CollectOneRow(rows, pgx.RowToStructByName[todos.Todo])
+	createdTodo, err = pgx.CollectOneRow(rows, pgx.RowToStructByName[todos.Todo])
+	if err != nil {
+		err = fmt.Errorf("%w: %w", ErrDatabase, err)
+		return
+	}
+
+	return
 }
 
 func (r *Repository) SaveTodo(ctx context.Context, todo todos.Todo) (savedTodo todos.Todo, err error) {
@@ -133,7 +152,13 @@ func (r *Repository) SaveTodo(ctx context.Context, todo todos.Todo) (savedTodo t
 		return
 	}
 
-	return pgx.CollectOneRow(rows, pgx.RowToStructByName[todos.Todo])
+	savedTodo, err = pgx.CollectOneRow(rows, pgx.RowToStructByName[todos.Todo])
+	if err != nil {
+		err = fmt.Errorf("%w: %w", ErrDatabase, err)
+		return
+	}
+
+	return
 }
 
 func (r *Repository) DeleteTodo(ctx context.Context, id uuid.UUID) error {
@@ -145,8 +170,11 @@ func (r *Repository) DeleteTodo(ctx context.Context, id uuid.UUID) error {
 		`,
 		id,
 	)
+	if err != nil {
+		return fmt.Errorf("%w: %w", ErrDatabase, err)
+	}
 
-	return err
+	return nil
 }
 
 func migrateRepository(logger *slog.Logger, config *config.Config) error {
