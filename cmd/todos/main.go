@@ -12,7 +12,7 @@ import (
 	"github.com/course-go/todos/internal/config"
 	"github.com/course-go/todos/internal/controllers"
 	"github.com/course-go/todos/internal/logger"
-	"github.com/course-go/todos/internal/todos"
+	"github.com/course-go/todos/internal/repository"
 )
 
 func main() {
@@ -36,7 +36,7 @@ func main() {
 	}
 
 	ctx := context.Background()
-	repository, err := todos.NewRepository(ctx, logger, config)
+	repository, err := repository.New(ctx, logger, config)
 	if err != nil {
 		logger.Error("failed creating todo repository",
 			"error", err,

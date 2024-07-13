@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/course-go/todos/internal/repository"
 	"github.com/course-go/todos/internal/todos"
 	"github.com/google/uuid"
 )
@@ -54,7 +55,7 @@ func (a API) getTodo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	todo, err := a.repository.GetTodo(id)
-	if errors.Is(err, todos.ErrTodoNotFound) {
+	if errors.Is(err, repository.ErrTodoNotFound) {
 		slog.Error("todo with given uuid does not exist",
 			"uuid", id.String(),
 			"error", err,
@@ -207,7 +208,7 @@ func (a API) deleteTodo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = a.repository.DeleteTodo(id)
-	if errors.Is(err, todos.ErrTodoNotFound) {
+	if errors.Is(err, repository.ErrTodoNotFound) {
 		code := http.StatusNotFound
 		w.WriteHeader(code)
 		w.Write(responseErrorBytes(code))

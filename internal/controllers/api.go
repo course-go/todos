@@ -6,16 +6,16 @@ import (
 	"net/http"
 
 	"github.com/course-go/todos/internal/config"
-	"github.com/course-go/todos/internal/todos"
+	"github.com/course-go/todos/internal/repository"
 )
 
 type API struct {
 	logger     *slog.Logger
 	config     *config.Config
-	repository *todos.Repository
+	repository *repository.Repository
 }
 
-func NewRouter(logger *slog.Logger, config *config.Config, repository *todos.Repository) *http.ServeMux {
+func NewRouter(logger *slog.Logger, config *config.Config, repository *repository.Repository) *http.ServeMux {
 	mux := http.NewServeMux()
 	logger = logger.With("component", "api")
 	api := &API{
