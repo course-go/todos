@@ -16,6 +16,10 @@ test:
 lint:
 	go run github.com/golangci/golangci-lint/cmd/golangci-lint run
 
+.PHONY: clean
+clean:
+	rm -rf bin data coverage.out
+
 .PHONY: dev
 dev:
 	docker compose --profile $(COMPOSE_PROFILE) up --build
