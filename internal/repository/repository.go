@@ -71,9 +71,9 @@ func (r *Repository) GetTodos(ctx context.Context) (t []todos.Todo, err error) {
 		return
 	}
 
-	t, err = pgx.CollectRows(rows, pgx.RowTo[todos.Todo])
-	r.logger.Info("got todos", "todos", t)
-	return nil, nil
+	// Use append to avoid returning nil slice
+	t = make([]todos.Todo, 0)
+	return pgx.AppendRows(t, rows, pgx.RowTo[todos.Todo])
 }
 
 func (r *Repository) GetTodo(id uuid.UUID) (todo todos.Todo, err error) { //nolint
