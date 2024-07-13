@@ -10,7 +10,7 @@ import (
 	"github.com/course-go/todos/internal/config"
 	"github.com/course-go/todos/internal/todos"
 	"github.com/golang-migrate/migrate/v4"
-	_ "github.com/golang-migrate/migrate/v4/database/pgx/v5"
+	_ "github.com/golang-migrate/migrate/v4/database/pgx/v5" // Used to register "pgx5" driver used for migrations.
 	"github.com/golang-migrate/migrate/v4/source/iofs"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -67,19 +67,19 @@ func (r *Repository) GetTodos() (todos []todos.Todo) {
 	return nil
 }
 
-func (r *Repository) GetTodo(id uuid.UUID) (todo todos.Todo, err error) {
+func (r *Repository) GetTodo(id uuid.UUID) (todo todos.Todo, err error) { //nolint
 	return todos.Todo{}, nil
 }
 
-func (r *Repository) CreateTodo(todo todos.Todo) (createdTodo todos.Todo) {
+func (r *Repository) CreateTodo(todo todos.Todo) (createdTodo todos.Todo) { //nolint
 	return todos.Todo{}
 }
 
-func (r *Repository) SaveTodo(todo todos.Todo) (savedTodo todos.Todo) {
+func (r *Repository) SaveTodo(todo todos.Todo) (savedTodo todos.Todo) { //nolint
 	return todos.Todo{}
 }
 
-func (r *Repository) DeleteTodo(id uuid.UUID) (err error) {
+func (r *Repository) DeleteTodo(id uuid.UUID) (err error) { //nolint
 	return nil
 }
 
@@ -105,11 +105,15 @@ func migrateRepository(logger *slog.Logger, config *config.Config) error {
 	defer func() {
 		srcErr, dbErr := m.Close()
 		if srcErr != nil {
-			logger.Warn("failed closing migrations source: %w", srcErr)
+			logger.Warn("failed closing migrations source: %w",
+				"error", srcErr,
+			)
 		}
 
 		if dbErr != nil {
-			logger.Warn("failed closing database after migrations: %w", dbErr)
+			logger.Warn("failed closing database after migrations",
+				"error", dbErr,
+			)
 		}
 	}()
 	err = m.Up()
