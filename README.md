@@ -1,5 +1,6 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/course-go/todos)](https://goreportcard.com/report/github.com/course-go/todos)
-![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/course-go/todos)
+![Go version](https://img.shields.io/github/go-mod/go-version/course-go/todos)
+[![Coverage Status](https://coveralls.io/repos/github/course-go/todos/badge.svg)](https://coveralls.io/github/course-go/todos)
 
 # Todos
 
