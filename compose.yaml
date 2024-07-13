@@ -2,10 +2,10 @@ name: todos
 
 services:
   api:
-    build: 
+    build:
       context: "."
     restart: "unless-stopped"
-    depends_on: 
+    depends_on:
       postgres:
         condition: service_healthy
     volumes:
@@ -13,7 +13,7 @@ services:
     ports:
       - "8080:8080"
     networks: [ todos ]
-    profiles: [ todos, all ] 
+    profiles: [ api, all ]
 
   postgres:
     image: "postgres:16-alpine"
@@ -25,7 +25,7 @@ services:
     ports:
       - "5432:5432"
     networks: [ todos ]
-    profiles: [ todos, dependencies, all ]   
+    profiles: [ api, dependencies, all ]
     healthcheck:
       test: [ "CMD-SHELL", "sh -c 'pg_isready -U postgres -d todos'" ]
       interval: 1s
@@ -39,7 +39,7 @@ services:
     ports:
       - "9090:9090"
     networks: [ todos ]
-    profiles: [ dependencies, all ]   
+    profiles: [ all ]
     volumes:
       - ./configs/prometheus:/etc/prometheus
       - ./data/prometheus:/prometheus
@@ -50,7 +50,7 @@ services:
     ports:
       - "3000:3000"
     networks: [ todos ]
-    profiles: [ dependencies, all ]   
+    profiles: [ all ]
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=grafana
