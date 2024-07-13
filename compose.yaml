@@ -26,6 +26,8 @@ services:
       - "5432:5432"
     networks: [ todos ]
     profiles: [ api, dependencies, all ]
+    volumes:
+      - ./data/pgdata:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD-SHELL", "sh -c 'pg_isready -U postgres -d todos'" ]
       interval: 1s
