@@ -31,12 +31,7 @@ func (a API) getTodos(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := Response{
-		Data: map[string]any{
-			"todos": todos,
-		},
-	}
-	bytes, err := json.Marshal(response)
+	bytes, err := responseDataBytes("todos", todos)
 	if err != nil {
 		code := http.StatusInternalServerError
 		w.WriteHeader(code)
@@ -82,12 +77,7 @@ func (a API) getTodo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := Response{
-		Data: map[string]any{
-			"todo": todo,
-		},
-	}
-	bytes, err := json.Marshal(response)
+	bytes, err := responseDataBytes("todo", todo)
 	if err != nil {
 		code := http.StatusInternalServerError
 		w.WriteHeader(code)
@@ -125,12 +115,7 @@ func (a API) createTodo(w http.ResponseWriter, r *http.Request) {
 		Description: request.Description,
 	}
 	todo = a.repository.CreateTodo(todo)
-	response := Response{
-		Data: map[string]any{
-			"todo": todo,
-		},
-	}
-	bytes, err := json.Marshal(response)
+	bytes, err := responseDataBytes("todo", todo)
 	if err != nil {
 		code := http.StatusInternalServerError
 		w.WriteHeader(code)
@@ -183,12 +168,7 @@ func (a API) updateTodo(w http.ResponseWriter, r *http.Request) {
 		CompletedAt: request.CompletedAt,
 	}
 	todo = a.repository.SaveTodo(todo)
-	response := Response{
-		Data: map[string]any{
-			"todo": todo,
-		},
-	}
-	bytes, err := json.Marshal(response)
+	bytes, err := responseDataBytes("todo", todo)
 	if err != nil {
 		code := http.StatusInternalServerError
 		w.WriteHeader(code)

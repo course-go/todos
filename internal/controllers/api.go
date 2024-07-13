@@ -51,3 +51,13 @@ func responseErrorBytes(httpCode int) []byte {
 
 	return bytes
 }
+
+func responseDataBytes(name string, data any) (bytes []byte, err error) {
+	response := Response{
+		Data: map[string]any{
+			name: data,
+		},
+	}
+
+	return json.Marshal(response)
+}
