@@ -40,6 +40,10 @@ func responseErrorBytes(httpCode int) []byte {
 	response := Response{
 		Error: http.StatusText(httpCode),
 	}
-	bytes, _ := json.Marshal(response) // ignores error for convenience
+	bytes, err := json.Marshal(response)
+	if err != nil {
+		return nil
+	}
+
 	return bytes
 }
