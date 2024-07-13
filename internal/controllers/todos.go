@@ -1,4 +1,4 @@
-package todos
+package controllers
 
 import (
 	"encoding/json"
@@ -9,16 +9,17 @@ import (
 	"time"
 
 	"github.com/course-go/todos/internal/config"
+	"github.com/course-go/todos/internal/todos"
 	"github.com/google/uuid"
 )
 
 type API struct {
 	logger     *slog.Logger
 	config     *config.Config
-	repository *Repository
+	repository *todos.Repository
 }
 
-func NewRouter(logger *slog.Logger, config *config.Config, repository *Repository) *http.ServeMux {
+func NewRouter(logger *slog.Logger, config *config.Config, repository *todos.Repository) *http.ServeMux {
 	mux := http.NewServeMux()
 	logger = logger.With("component", "api")
 	api := &API{
@@ -48,7 +49,7 @@ func ResponseErrorBytes(httpCode int) []byte {
 }
 
 func (a API) getTodos(w http.ResponseWriter, r *http.Request) {
-	todos := a.repository.getTodos()
+	todos := a.repository.GetTodos()
 	response := Response{
 		Data: map[string]any{
 			"todos": todos,
@@ -79,8 +80,8 @@ func (a API) getTodo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	todo, err := a.repository.getTodo(id)
-	if errors.Is(err, ErrTodoNotFound) {
+	todo, err := a.repository.GetTodo(id)
+	if errors.Is(err, todos.ErrTodoNotFound) {
 		slog.Error("todo with given uuid does not exist",
 			"uuid", id.String(),
 			"error", err,
@@ -144,10 +145,10 @@ func (a API) createTodo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	todo := Todo{
+	todo := todos.Todo{
 		Description: request.Description,
 	}
-	todo = a.repository.createTodo(todo)
+	todo = a.repository.CreateTodo(todo)
 	response := Response{
 		Data: map[string]any{
 			"todo": todo,
@@ -205,12 +206,12 @@ func (a API) updateTodo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	todo := Todo{
+	todo := todos.Todo{
 		ID:          id,
 		Description: request.Description,
 		CompletedAt: request.CompletedAt,
 	}
-	todo = a.repository.saveTodo(todo)
+	todo = a.repository.SaveTodo(todo)
 	response := Response{
 		Data: map[string]any{
 			"todo": todo,
@@ -241,8 +242,8 @@ func (a API) deleteTodo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = a.repository.deleteTodo(id)
-	if errors.Is(err, ErrTodoNotFound) {
+	err = a.repository.DeleteTodo(id)
+	if errors.Is(err, todos.ErrTodoNotFound) {
 		code := http.StatusNotFound
 		w.WriteHeader(code)
 		w.Write(ResponseErrorBytes(code))

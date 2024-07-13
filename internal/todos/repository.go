@@ -49,13 +49,13 @@ func NewRepository(ctx context.Context, logger *slog.Logger, config *config.Conf
 	return
 }
 
-func (r *Repository) getTodos() (todos []Todo) {
+func (r *Repository) GetTodos() (todos []Todo) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	return r.todos
 }
 
-func (r *Repository) getTodo(id uuid.UUID) (todo Todo, err error) {
+func (r *Repository) GetTodo(id uuid.UUID) (todo Todo, err error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	for _, todo := range r.todos {
@@ -67,7 +67,7 @@ func (r *Repository) getTodo(id uuid.UUID) (todo Todo, err error) {
 	return Todo{}, ErrTodoNotFound
 }
 
-func (r *Repository) createTodo(todo Todo) (createdTodo Todo) {
+func (r *Repository) CreateTodo(todo Todo) (createdTodo Todo) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	todo.ID = uuid.New()
@@ -76,7 +76,7 @@ func (r *Repository) createTodo(todo Todo) (createdTodo Todo) {
 	return todo
 }
 
-func (r *Repository) saveTodo(todo Todo) (savedTodo Todo) {
+func (r *Repository) SaveTodo(todo Todo) (savedTodo Todo) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	index := slices.IndexFunc(r.todos, func(t Todo) bool {
@@ -95,7 +95,7 @@ func (r *Repository) saveTodo(todo Todo) (savedTodo Todo) {
 	return todo
 }
 
-func (r *Repository) deleteTodo(id uuid.UUID) (err error) {
+func (r *Repository) DeleteTodo(id uuid.UUID) (err error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	index := slices.IndexFunc(r.todos, func(todo Todo) bool {

@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/course-go/todos/internal/config"
+	"github.com/course-go/todos/internal/controllers"
 	"github.com/course-go/todos/internal/logger"
 	"github.com/course-go/todos/internal/todos"
 )
@@ -43,7 +44,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	mux := todos.NewRouter(logger, config, repository)
+	mux := controllers.NewRouter(logger, config, repository)
 	hostname := fmt.Sprintf("%s:%s",
 		config.Service.Host,
 		config.Service.Port,
