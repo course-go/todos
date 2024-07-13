@@ -6,6 +6,7 @@ on:
     paths-ignore:
       - docs/**
       - configs/**
+      - README.md
 
 jobs:
   build:
