@@ -19,6 +19,9 @@ linters:
     - gomnd
 
 linters-settings:
+  errcheck:
+    exclude-functions:
+      - (net/http.ResponseWriter).Write
   depguard:
     rules:
       main:
