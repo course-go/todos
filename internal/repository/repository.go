@@ -6,9 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-	"slices"
-	"sync"
-	"time"
 
 	"github.com/course-go/todos/internal/config"
 	"github.com/course-go/todos/internal/todos"
@@ -31,8 +28,6 @@ type Repository struct {
 	logger *slog.Logger
 	config *config.Config
 	pool   *pgxpool.Pool
-	mu     sync.Mutex
-	todos  []todos.Todo
 }
 
 func New(
@@ -64,69 +59,27 @@ func New(
 		logger: logger,
 		config: config,
 		pool:   pool,
-		todos:  make([]todos.Todo, 0),
 	}
 	return
 }
 
 func (r *Repository) GetTodos() (todos []todos.Todo) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	return r.todos
+	return nil
 }
 
 func (r *Repository) GetTodo(id uuid.UUID) (todo todos.Todo, err error) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	for _, todo := range r.todos {
-		if todo.ID == id {
-			return todo, nil
-		}
-	}
-
-	return todos.Todo{}, ErrTodoNotFound
+	return todos.Todo{}, nil
 }
 
 func (r *Repository) CreateTodo(todo todos.Todo) (createdTodo todos.Todo) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	todo.ID = uuid.New()
-	todo.CreatedAt = time.Now()
-	r.todos = append(r.todos, todo)
-	return todo
+	return todos.Todo{}
 }
 
 func (r *Repository) SaveTodo(todo todos.Todo) (savedTodo todos.Todo) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	index := slices.IndexFunc(r.todos, func(t todos.Todo) bool {
-		return t.ID == todo.ID
-	})
-	if index == -1 {
-		todo.CreatedAt = time.Now()
-		r.todos = append(r.todos, todo)
-		return todo
-	}
-
-	todo.CreatedAt = r.todos[index].CreatedAt
-	now := time.Now()
-	todo.UpdatedAt = &now
-	r.todos[index] = todo
-	return todo
+	return todos.Todo{}
 }
 
 func (r *Repository) DeleteTodo(id uuid.UUID) (err error) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	index := slices.IndexFunc(r.todos, func(todo todos.Todo) bool {
-		return id == todo.ID
-	})
-	if index == -1 {
-		return ErrTodoNotFound
-	}
-
-	slice := slices.Delete(r.todos, index, index+1)
-	r.todos = slice[:]
 	return nil
 }
 
