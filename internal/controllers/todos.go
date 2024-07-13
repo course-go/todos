@@ -8,47 +8,20 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/course-go/todos/internal/config"
 	"github.com/course-go/todos/internal/todos"
 	"github.com/google/uuid"
 )
 
-type API struct {
-	logger     *slog.Logger
-	config     *config.Config
-	repository *todos.Repository
+type CreateTodoRequest struct {
+	Description string `binding:"required" json:"description"`
 }
 
-func NewRouter(logger *slog.Logger, config *config.Config, repository *todos.Repository) *http.ServeMux {
-	mux := http.NewServeMux()
-	logger = logger.With("component", "api")
-	api := &API{
-		logger:     logger,
-		config:     config,
-		repository: repository,
-	}
-	mux.HandleFunc("GET /v1/todos", api.getTodos)
-	mux.HandleFunc("GET /v1/todos/{id}", api.getTodo)
-	mux.HandleFunc("POST /v1/todos", api.createTodo)
-	mux.HandleFunc("PUT /v1/todos/{id}", api.updateTodo)
-	mux.HandleFunc("DELETE /v1/todos/{id}", api.deleteTodo)
-	return mux
+type UpdateTodoRequest struct {
+	Description string     `binding:"required" json:"description"`
+	CompletedAt *time.Time `json:"completedAt"`
 }
 
-type Response struct {
-	Data  map[string]any `json:"data,omitempty"`
-	Error string         `json:"error,omitempty"`
-}
-
-func ResponseErrorBytes(httpCode int) []byte {
-	response := Response{
-		Error: http.StatusText(httpCode),
-	}
-	bytes, _ := json.Marshal(response) // ignores error for convenience
-	return bytes
-}
-
-func (a API) getTodos(w http.ResponseWriter, r *http.Request) {
+func (a API) getTodos(w http.ResponseWriter, _ *http.Request) {
 	todos := a.repository.GetTodos()
 	response := Response{
 		Data: map[string]any{
@@ -60,7 +33,7 @@ func (a API) getTodos(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		code := http.StatusInternalServerError
 		w.WriteHeader(code)
-		w.Write(ResponseErrorBytes(code))
+		w.Write(responseErrorBytes(code))
 		return
 	}
 
@@ -76,7 +49,7 @@ func (a API) getTodo(w http.ResponseWriter, r *http.Request) {
 		)
 		code := http.StatusBadRequest
 		w.WriteHeader(code)
-		w.Write(ResponseErrorBytes(code))
+		w.Write(responseErrorBytes(code))
 		return
 	}
 
@@ -88,7 +61,7 @@ func (a API) getTodo(w http.ResponseWriter, r *http.Request) {
 		)
 		code := http.StatusNotFound
 		w.WriteHeader(code)
-		w.Write(ResponseErrorBytes(code))
+		w.Write(responseErrorBytes(code))
 		return
 	}
 
@@ -98,7 +71,7 @@ func (a API) getTodo(w http.ResponseWriter, r *http.Request) {
 		)
 		code := http.StatusInternalServerError
 		w.WriteHeader(code)
-		w.Write(ResponseErrorBytes(code))
+		w.Write(responseErrorBytes(code))
 		return
 	}
 
@@ -111,15 +84,11 @@ func (a API) getTodo(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		code := http.StatusInternalServerError
 		w.WriteHeader(code)
-		w.Write(ResponseErrorBytes(code))
+		w.Write(responseErrorBytes(code))
 		return
 	}
 
 	w.Write(bytes)
-}
-
-type CreateTodoRequest struct {
-	Description string `json:"description" binding:"required"`
 }
 
 func (a API) createTodo(w http.ResponseWriter, r *http.Request) {
@@ -128,7 +97,7 @@ func (a API) createTodo(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		code := http.StatusInternalServerError
 		w.WriteHeader(code)
-		w.Write(ResponseErrorBytes(code))
+		w.Write(responseErrorBytes(code))
 		return
 	}
 
@@ -141,7 +110,7 @@ func (a API) createTodo(w http.ResponseWriter, r *http.Request) {
 		)
 		code := http.StatusBadRequest
 		w.WriteHeader(code)
-		w.Write(ResponseErrorBytes(code))
+		w.Write(responseErrorBytes(code))
 		return
 	}
 
@@ -158,17 +127,12 @@ func (a API) createTodo(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		code := http.StatusInternalServerError
 		w.WriteHeader(code)
-		w.Write(ResponseErrorBytes(code))
+		w.Write(responseErrorBytes(code))
 		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
 	w.Write(bytes)
-}
-
-type UpdateTodoRequest struct {
-	Description string     `json:"description" binding:"required"`
-	CompletedAt *time.Time `json:"completed_at"`
 }
 
 func (a API) updateTodo(w http.ResponseWriter, r *http.Request) {
@@ -180,7 +144,7 @@ func (a API) updateTodo(w http.ResponseWriter, r *http.Request) {
 		)
 		code := http.StatusBadRequest
 		w.WriteHeader(code)
-		w.Write(ResponseErrorBytes(code))
+		w.Write(responseErrorBytes(code))
 		return
 	}
 
@@ -189,7 +153,7 @@ func (a API) updateTodo(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		code := http.StatusInternalServerError
 		w.WriteHeader(code)
-		w.Write(ResponseErrorBytes(code))
+		w.Write(responseErrorBytes(code))
 		return
 	}
 
@@ -202,7 +166,7 @@ func (a API) updateTodo(w http.ResponseWriter, r *http.Request) {
 		)
 		code := http.StatusBadRequest
 		w.WriteHeader(code)
-		w.Write(ResponseErrorBytes(code))
+		w.Write(responseErrorBytes(code))
 		return
 	}
 
@@ -221,7 +185,7 @@ func (a API) updateTodo(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		code := http.StatusInternalServerError
 		w.WriteHeader(code)
-		w.Write(ResponseErrorBytes(code))
+		w.Write(responseErrorBytes(code))
 		return
 	}
 
@@ -238,7 +202,7 @@ func (a API) deleteTodo(w http.ResponseWriter, r *http.Request) {
 		)
 		code := http.StatusBadRequest
 		w.WriteHeader(code)
-		w.Write(ResponseErrorBytes(code))
+		w.Write(responseErrorBytes(code))
 		return
 	}
 
@@ -246,14 +210,14 @@ func (a API) deleteTodo(w http.ResponseWriter, r *http.Request) {
 	if errors.Is(err, todos.ErrTodoNotFound) {
 		code := http.StatusNotFound
 		w.WriteHeader(code)
-		w.Write(ResponseErrorBytes(code))
+		w.Write(responseErrorBytes(code))
 		return
 	}
 
 	if err != nil {
 		code := http.StatusInternalServerError
 		w.WriteHeader(code)
-		w.Write(ResponseErrorBytes(code))
+		w.Write(responseErrorBytes(code))
 		return
 	}
 
