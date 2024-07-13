@@ -33,6 +33,7 @@ linters-settings:
           - github.com/course-go/todos
           - github.com/google/uuid
           - github.com/jackc/pgx/v5
+          - github.com/golang-migrate/migrate/v4
   mnd:
     ignored-files:
       - 'main.go'
