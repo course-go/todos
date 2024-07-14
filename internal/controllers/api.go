@@ -28,11 +28,11 @@ func NewRouter(logger *slog.Logger, config *config.Config, repository *repositor
 }
 
 func (a API) mountTodoControllers(mux *http.ServeMux) {
-	mux.HandleFunc("GET /v1/todos", a.getTodos)
-	mux.HandleFunc("GET /v1/todos/{id}", a.getTodo)
-	mux.HandleFunc("POST /v1/todos", a.createTodo)
-	mux.HandleFunc("PUT /v1/todos/{id}", a.updateTodo)
-	mux.HandleFunc("DELETE /v1/todos/{id}", a.deleteTodo)
+	mux.HandleFunc("GET /api/v1/todos", a.getTodos)
+	mux.HandleFunc("GET /api/v1/todos/{id}", a.getTodo)
+	mux.HandleFunc("POST /api/v1/todos", a.createTodo)
+	mux.HandleFunc("PUT /api/v1/todos/{id}", a.updateTodo)
+	mux.HandleFunc("DELETE /api/v1/todos/{id}", a.deleteTodo)
 }
 
 type Response struct {
