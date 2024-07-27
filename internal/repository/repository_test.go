@@ -105,7 +105,7 @@ func TestRepository(t *testing.T) {
 			)
 		}
 	})
-	t.Run("Save todo", func(t *testing.T) {
+	t.Run("Save existing todo", func(t *testing.T) {
 		t.Cleanup(func() {
 			restoreDatabase(ctx, t, c)
 		})
@@ -125,7 +125,7 @@ func TestRepository(t *testing.T) {
 		todo.CompletedAt = &now
 		savedTodo, err := r.SaveTodo(ctx, todo)
 		if err != nil {
-			t.Fatalf("could not get todos: %v", err)
+			t.Fatalf("could not save todo: %v", err)
 		}
 
 		if savedTodo.UpdatedAt == nil {
@@ -137,6 +137,27 @@ func TestRepository(t *testing.T) {
 				now.String(),
 				savedTodo.UpdatedAt.String(),
 			)
+		}
+	})
+	t.Run("Save non-existing todo", func(t *testing.T) {
+		t.Cleanup(func() {
+			restoreDatabase(ctx, t, c)
+		})
+
+		r := newTestRepository(ctx, t, c)
+		id, err := uuid.Parse("ac4011ce-59c9-4361-8abf-10abd273d5e5")
+		if err != nil {
+			t.Fatalf("could not parse uuid: %v", err)
+		}
+
+		todo := todos.Todo{
+			ID:          id,
+			Description: "Do some shopping",
+			CompletedAt: nil,
+		}
+		_, err = r.SaveTodo(ctx, todo)
+		if !errors.Is(err, ErrTodoNotFound) {
+			t.Fatalf("todo should not be found: expected: %v != actual: %v", ErrTodoNotFound, err)
 		}
 	})
 	t.Run("Delete existing todo", func(t *testing.T) {
