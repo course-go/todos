@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/course-go/todos/internal/config"
+	"github.com/course-go/todos/internal/todos"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 	"github.com/testcontainers/testcontainers-go/wait"
@@ -28,12 +29,41 @@ func TestRepository(t *testing.T) {
 			t.Logf("failed terminating postgres container: %v", err)
 		}
 	})
-	_ = newTestRepository(ctx, t, c)
+	r := newTestRepository(ctx, t, c)
 	seedDatabase(ctx, t)
 	err := c.Snapshot(ctx, postgres.WithSnapshotName("test-todos"))
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	t.Run("Create todo", func(t *testing.T) {
+		t.Cleanup(func() {
+			err = c.Restore(ctx)
+			if err != nil {
+				t.Fatalf("failed restoring database: %v", err)
+			}
+		})
+
+		todo := todos.Todo{
+			Description: "Mop the floor",
+		}
+		createdTodo, err := r.CreateTodo(ctx, todo)
+		if err != nil {
+			t.Fatalf("could not create todo: %v", err)
+		}
+
+		retrievedTodo, err := r.GetTodo(ctx, createdTodo.ID)
+		if err != nil {
+			t.Fatalf("could not retrieve created todo: %v", err)
+		}
+
+		if todo.Description != retrievedTodo.Description {
+			t.Fatalf("todo descriptions do not match: expected: %s != actual: %s]",
+				todo.Description,
+				retrievedTodo.Description,
+			)
+		}
+	})
 }
 
 func newTestContainer(ctx context.Context, t *testing.T) *postgres.PostgresContainer {
