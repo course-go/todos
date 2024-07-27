@@ -38,11 +38,6 @@ func New(
 	config *config.Config,
 ) (repository *Repository, err error) {
 	logger = logger.With("component", "repository")
-	err = migrateRepository(logger, config)
-	if err != nil {
-		return
-	}
-
 	databaseURL := fmt.Sprintf("%s://%s:%s@%s:%s/%s",
 		config.Database.Protocol,
 		config.Database.User,
@@ -63,6 +58,52 @@ func New(
 		pool:   pool,
 	}
 	return
+}
+
+func Migrate(logger *slog.Logger, config *config.Config) error {
+	databaseURL := fmt.Sprintf("%s://%s:%s@%s:%s/%s",
+		"pgx5", // golang-migrate uses "stdlib registered" drivers set by imports
+		config.Database.User,
+		config.Database.Password,
+		config.Database.Host,
+		config.Database.Port,
+		config.Database.Name,
+	)
+	d, err := iofs.New(embedMigrations, "migrations")
+	if err != nil {
+		return fmt.Errorf("failed initializing driver from iofs: %w", err)
+	}
+
+	m, err := migrate.NewWithSourceInstance("iofs", d, databaseURL)
+	if err != nil {
+		return fmt.Errorf("failed creating migrations: %w", err)
+	}
+
+	defer func() {
+		srcErr, dbErr := m.Close()
+		if srcErr != nil {
+			logger.Warn("failed closing migrations source: %w",
+				"error", srcErr,
+			)
+		}
+
+		if dbErr != nil {
+			logger.Warn("failed closing database after migrations",
+				"error", dbErr,
+			)
+		}
+	}()
+	err = m.Up()
+	if errors.Is(err, migrate.ErrNoChange) {
+		logger.Info("database schema is up to date")
+		return nil
+	}
+
+	if err != nil {
+		return fmt.Errorf("failed applying migrations: %w", err)
+	}
+
+	return nil
 }
 
 func (r *Repository) GetTodos(ctx context.Context) (t []todos.Todo, err error) {
@@ -176,52 +217,6 @@ func (r *Repository) DeleteTodo(ctx context.Context, id uuid.UUID) error {
 
 	if c.RowsAffected() == 0 {
 		return ErrTodoNotFound
-	}
-
-	return nil
-}
-
-func migrateRepository(logger *slog.Logger, config *config.Config) error {
-	databaseURL := fmt.Sprintf("%s://%s:%s@%s:%s/%s",
-		"pgx5", // golang-migrate uses "stdlib registered" drivers set by imports
-		config.Database.User,
-		config.Database.Password,
-		config.Database.Host,
-		config.Database.Port,
-		config.Database.Name,
-	)
-	d, err := iofs.New(embedMigrations, "migrations")
-	if err != nil {
-		return fmt.Errorf("failed initializing driver from iofs: %w", err)
-	}
-
-	m, err := migrate.NewWithSourceInstance("iofs", d, databaseURL)
-	if err != nil {
-		return fmt.Errorf("failed creating migrations: %w", err)
-	}
-
-	defer func() {
-		srcErr, dbErr := m.Close()
-		if srcErr != nil {
-			logger.Warn("failed closing migrations source: %w",
-				"error", srcErr,
-			)
-		}
-
-		if dbErr != nil {
-			logger.Warn("failed closing database after migrations",
-				"error", dbErr,
-			)
-		}
-	}()
-	err = m.Up()
-	if errors.Is(err, migrate.ErrNoChange) {
-		logger.Info("database schema is up to date")
-		return nil
-	}
-
-	if err != nil {
-		return fmt.Errorf("failed applying migrations: %w", err)
 	}
 
 	return nil
