@@ -194,6 +194,11 @@ func (r *Repository) SaveTodo(ctx context.Context, todo todos.Todo) (savedTodo t
 	}
 
 	savedTodo, err = pgx.CollectOneRow(rows, pgx.RowToStructByName[todos.Todo])
+	if errors.Is(err, pgx.ErrNoRows) {
+		err = ErrTodoNotFound
+		return
+	}
+
 	if err != nil {
 		err = fmt.Errorf("%w: %w", ErrDatabase, err)
 		return
