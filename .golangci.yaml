@@ -37,5 +37,11 @@ linters-settings:
   mnd:
     ignored-files:
       - 'main.go'
+
 output:
     sort-results: true
+    formats:
+      - format: colored-line-number
+        path: stdout
+      - format: colored-line-number
+        path: golangci-lint.out
