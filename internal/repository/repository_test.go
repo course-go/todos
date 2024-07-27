@@ -29,21 +29,18 @@ func TestRepository(t *testing.T) {
 			t.Logf("failed terminating postgres container: %v", err)
 		}
 	})
-	r := newTestRepository(ctx, t, c)
 	seedDatabase(ctx, t)
 	err := c.Snapshot(ctx, postgres.WithSnapshotName("test-todos"))
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("failed creating database snapshot: %v", err)
 	}
 
 	t.Run("Create todo", func(t *testing.T) {
 		t.Cleanup(func() {
-			err = c.Restore(ctx)
-			if err != nil {
-				t.Fatalf("failed restoring database: %v", err)
-			}
+			restoreDatabase(ctx, t, c)
 		})
 
+		r := newTestRepository(ctx, t, c)
 		todo := todos.Todo{
 			Description: "Mop the floor",
 		}
@@ -73,6 +70,9 @@ func newTestContainer(ctx context.Context, t *testing.T) *postgres.PostgresConta
 		postgres.WithDatabase(dbName),
 		postgres.WithUsername(dbUser),
 		postgres.WithPassword(dbPass),
+		postgres.WithInitScripts(
+			"migrations/20240713140024_init.up.sql",
+		),
 		postgres.WithSQLDriver("pgx5"),
 		testcontainers.WithWaitStrategy(
 			wait.ForLog("database system is ready to accept connections").
@@ -126,3 +126,11 @@ func newTestLogger(t *testing.T) *slog.Logger {
 }
 
 func seedDatabase(ctx context.Context, t *testing.T) {}
+
+func restoreDatabase(ctx context.Context, t *testing.T, c *postgres.PostgresContainer) {
+	t.Helper()
+	err := c.Restore(ctx, postgres.WithSnapshotName("test-todos"))
+	if err != nil {
+		t.Fatalf("failed restoring database: %v", err)
+	}
+}
