@@ -20,7 +20,7 @@ lint:
 
 .PHONY: clean
 clean:
-	rm -rf bin data coverage.out
+	rm -rf bin data coverage.out golangci-lint.out
 
 .PHONY: dev
 dev:
