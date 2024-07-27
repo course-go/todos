@@ -15,3 +15,4 @@ This project uses:
 - [pgx](https://github.com/jackc/pgx) for database access
 - [migrate](https://github.com/jackc/pgx) for managing database migrations
 - [slog](https://pkg.go.dev/log/slog) for logging
+- [testcontainers](https://github.com/testcontainers/testcontainers-go) for testing with dependencies
