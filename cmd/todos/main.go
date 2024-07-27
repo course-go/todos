@@ -23,7 +23,7 @@ var (
 func main() {
 	flag.Parse()
 	if *versionFlag {
-		fmt.Printf("TODOS: [%s]\n", Version)
+		fmt.Printf("TODOS: [%s]\n", Version) //nolint: forbidigo
 		os.Exit(0)
 	}
 
