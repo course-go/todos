@@ -47,17 +47,17 @@ func main() {
 	}
 
 	ctx := context.Background()
-	err = repository.Migrate(logger, config)
+	repository, err := repository.New(ctx, logger, config)
 	if err != nil {
-		logger.Error("failed migrating database",
+		logger.Error("failed creating todo repository",
 			"error", err,
 		)
 		os.Exit(1)
 	}
 
-	repository, err := repository.New(ctx, logger, config)
+	err = repository.Migrate()
 	if err != nil {
-		logger.Error("failed creating todo repository",
+		logger.Error("failed migrating database",
 			"error", err,
 		)
 		os.Exit(1)

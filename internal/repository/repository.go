@@ -60,14 +60,14 @@ func New(
 	return
 }
 
-func Migrate(logger *slog.Logger, config *config.Config) error {
+func (r *Repository) Migrate() error {
 	databaseURL := fmt.Sprintf("%s://%s:%s@%s:%s/%s",
 		"pgx5", // golang-migrate uses "stdlib registered" drivers set by imports
-		config.Database.User,
-		config.Database.Password,
-		config.Database.Host,
-		config.Database.Port,
-		config.Database.Name,
+		r.config.Database.User,
+		r.config.Database.Password,
+		r.config.Database.Host,
+		r.config.Database.Port,
+		r.config.Database.Name,
 	)
 	d, err := iofs.New(embedMigrations, "migrations")
 	if err != nil {
@@ -82,20 +82,20 @@ func Migrate(logger *slog.Logger, config *config.Config) error {
 	defer func() {
 		srcErr, dbErr := m.Close()
 		if srcErr != nil {
-			logger.Warn("failed closing migrations source: %w",
+			r.logger.Warn("failed closing migrations source: %w",
 				"error", srcErr,
 			)
 		}
 
 		if dbErr != nil {
-			logger.Warn("failed closing database after migrations",
+			r.logger.Warn("failed closing database after migrations",
 				"error", dbErr,
 			)
 		}
 	}()
 	err = m.Up()
 	if errors.Is(err, migrate.ErrNoChange) {
-		logger.Info("database schema is up to date")
+		r.logger.Info("database schema is up to date")
 		return nil
 	}
 
