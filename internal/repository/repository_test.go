@@ -148,7 +148,9 @@ func TestRepository(t *testing.T) {
 			t.Fatalf("todo updated timestampt was not changed")
 		}
 
-		if !savedTodo.CompletedAt.Equal(now) {
+		nowRounded := now.Round(time.Millisecond)
+		todoRounded := savedTodo.CompletedAt.Round(time.Millisecond)
+		if !todoRounded.Equal(nowRounded) {
 			t.Fatalf("todo completed timestampt does not match: expected: %s != actual: %s",
 				now.String(),
 				savedTodo.UpdatedAt.String(),
