@@ -15,7 +15,18 @@ import (
 	"github.com/course-go/todos/internal/repository"
 )
 
+var (
+	Version     string
+	versionFlag = flag.Bool("version", false, "output program version")
+)
+
 func main() {
+	flag.Parse()
+	if *versionFlag {
+		fmt.Printf("TODOS: [%s]\n", Version)
+		os.Exit(0)
+	}
+
 	configPath := flag.String("config", "/etc/course-go/todos/config.yaml", "path to config file")
 	flag.Parse()
 
