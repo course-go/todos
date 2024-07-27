@@ -88,6 +88,16 @@ jobs:
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
 
+      - name: Include golangci-lint
+        uses: actions/download-artifact@v4
+        with:
+          name: golangci-lint.out
+
+      - name: Include coverage
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage.out
+
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
