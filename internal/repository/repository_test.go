@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"os"
 	"testing"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/course-go/todos/internal/config"
 	"github.com/course-go/todos/internal/todos"
+	"github.com/google/uuid"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 	"github.com/testcontainers/testcontainers-go/wait"
@@ -59,6 +61,22 @@ func TestRepository(t *testing.T) {
 				todo.Description,
 				retrievedTodo.Description,
 			)
+		}
+	})
+	t.Run("Delete non-existing todo", func(t *testing.T) {
+		t.Cleanup(func() {
+			restoreDatabase(ctx, t, c)
+		})
+
+		r := newTestRepository(ctx, t, c)
+		id, err := uuid.Parse("4fabcaa9-7fe6-4129-86f2-1d62d142a67b")
+		if err != nil {
+			t.Fatalf("could not parse uuid: %v", err)
+		}
+
+		err = r.DeleteTodo(ctx, id)
+		if !errors.Is(err, ErrTodoNotFound) {
+			t.Fatalf("todo should not be found: expected: %v != actual: %v", ErrTodoNotFound, err)
 		}
 	})
 }
