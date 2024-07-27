@@ -31,7 +31,6 @@ func TestRepository(t *testing.T) {
 			t.Logf("failed terminating postgres container: %v", err)
 		}
 	})
-	seedDatabase(ctx, t)
 	err := c.Snapshot(ctx, postgres.WithSnapshotName("test-todos"))
 	if err != nil {
 		t.Fatalf("failed creating database snapshot: %v", err)
@@ -159,8 +158,6 @@ func newTestLogger(t *testing.T) *slog.Logger {
 	}
 	return slog.New(slog.NewTextHandler(os.Stdout, &opts))
 }
-
-func seedDatabase(ctx context.Context, t *testing.T) {}
 
 func restoreDatabase(ctx context.Context, t *testing.T, c *postgres.PostgresContainer) {
 	t.Helper()
