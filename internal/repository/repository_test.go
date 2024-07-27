@@ -105,6 +105,40 @@ func TestRepository(t *testing.T) {
 			)
 		}
 	})
+	t.Run("Save todo", func(t *testing.T) {
+		t.Cleanup(func() {
+			restoreDatabase(ctx, t, c)
+		})
+
+		r := newTestRepository(ctx, t, c)
+		id, err := uuid.Parse("62446c85-3798-471f-abb8-75c1cdd7153b")
+		if err != nil {
+			t.Fatalf("could not parse uuid: %v", err)
+		}
+
+		todo, err := r.GetTodo(ctx, id)
+		if err != nil {
+			t.Fatalf("could not get todo: %v", err)
+		}
+
+		now := time.Now()
+		todo.CompletedAt = &now
+		savedTodo, err := r.SaveTodo(ctx, todo)
+		if err != nil {
+			t.Fatalf("could not get todos: %v", err)
+		}
+
+		if savedTodo.UpdatedAt == nil {
+			t.Fatalf("todo updated timestampt was not changed")
+		}
+
+		if !savedTodo.CompletedAt.Equal(now) {
+			t.Fatalf("todo completed timestampt does not match: expected: %s != actual: %s",
+				now.String(),
+				savedTodo.UpdatedAt.String(),
+			)
+		}
+	})
 	t.Run("Delete existing todo", func(t *testing.T) {
 		t.Cleanup(func() {
 			restoreDatabase(ctx, t, c)
