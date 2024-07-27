@@ -63,6 +63,22 @@ func TestRepository(t *testing.T) {
 			)
 		}
 	})
+	t.Run("Delete existing todo", func(t *testing.T) {
+		t.Cleanup(func() {
+			restoreDatabase(ctx, t, c)
+		})
+
+		r := newTestRepository(ctx, t, c)
+		id, err := uuid.Parse("f52bad23-c201-414e-9bdb-af4327c42aa7")
+		if err != nil {
+			t.Fatalf("could not parse uuid: %v", err)
+		}
+
+		err = r.DeleteTodo(ctx, id)
+		if err != nil {
+			t.Fatalf("todo should be deleted: expected: nil != actual: %v", err)
+		}
+	})
 	t.Run("Delete non-existing todo", func(t *testing.T) {
 		t.Cleanup(func() {
 			restoreDatabase(ctx, t, c)
@@ -90,6 +106,7 @@ func newTestContainer(ctx context.Context, t *testing.T) *postgres.PostgresConta
 		postgres.WithPassword(dbPass),
 		postgres.WithInitScripts(
 			"migrations/20240713140024_init.up.sql",
+			"testdata/seed.sql",
 		),
 		postgres.WithSQLDriver("pgx5"),
 		testcontainers.WithWaitStrategy(
