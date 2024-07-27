@@ -41,6 +41,13 @@ jobs:
       - name: Lint
         run: make lint
 
+      - name: Upload lint artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: golangci-lint.out
+          path: golangci-lint.out
+          retention-days: 7
+
   test:
     name: Test
     runs-on: ubuntu-latest
@@ -63,10 +70,10 @@ jobs:
         with:
           file: coverage.out
 
-      - name: 'Upload coverage artifact'
+      - name: Upload coverage artifact
         uses: actions/upload-artifact@v4
         with:
-          name: coverage
+          name: coverage.out
           path: coverage.out
           retention-days: 7
 
