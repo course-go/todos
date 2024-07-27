@@ -8,23 +8,29 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+type Service struct {
+	Name string `yaml:"name,omitempty"`
+	Host string `yaml:"host,omitempty"`
+	Port string `yaml:"port,omitempty"`
+}
+
+type Logging struct {
+	Level string `yaml:"level,omitempty"`
+}
+
+type Database struct {
+	Protocol string `yaml:"protocol"`
+	User     string `yaml:"user"`
+	Password string `yaml:"password"`
+	Host     string `yaml:"host"`
+	Port     string `yaml:"port"`
+	Name     string `yaml:"name"`
+}
+
 type Config struct {
-	Service struct {
-		Name string `yaml:"name,omitempty"`
-		Host string `yaml:"host,omitempty"`
-		Port string `yaml:"port,omitempty"`
-	} `yaml:"service,omitempty"`
-	Logging struct {
-		Level string `yaml:"level,omitempty"`
-	} `yaml:"logging,omitempty"`
-	Database struct {
-		Protocol string `yaml:"protocol"`
-		User     string `yaml:"user"`
-		Password string `yaml:"password"`
-		Host     string `yaml:"host"`
-		Port     string `yaml:"port"`
-		Name     string `yaml:"name"`
-	} `yaml:"database"`
+	Service  `yaml:"service,omitempty"`
+	Logging  `yaml:"logging,omitempty"`
+	Database `yaml:"database"`
 }
 
 func Parse(configPath string) (config *Config, err error) {
