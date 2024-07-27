@@ -56,9 +56,52 @@ func TestRepository(t *testing.T) {
 		}
 
 		if todo.Description != retrievedTodo.Description {
-			t.Fatalf("todo descriptions do not match: expected: %s != actual: %s]",
+			t.Fatalf("todo descriptions do not match: expected: %s != actual: %s",
 				todo.Description,
 				retrievedTodo.Description,
+			)
+		}
+	})
+	t.Run("Get todo", func(t *testing.T) {
+		t.Cleanup(func() {
+			restoreDatabase(ctx, t, c)
+		})
+
+		r := newTestRepository(ctx, t, c)
+		id, err := uuid.Parse("f52bad23-c201-414e-9bdb-af4327c42aa7")
+		if err != nil {
+			t.Fatalf("could not parse uuid: %v", err)
+		}
+
+		todo, err := r.GetTodo(ctx, id)
+		if err != nil {
+			t.Fatalf("could not get todo: %v", err)
+		}
+
+		expectedDescription := "Vacuum"
+		if todo.Description != expectedDescription {
+			t.Fatalf("todo descriptions do not match: expected: %s != actual: %s",
+				expectedDescription,
+				todo.Description,
+			)
+		}
+	})
+	t.Run("Get todos", func(t *testing.T) {
+		t.Cleanup(func() {
+			restoreDatabase(ctx, t, c)
+		})
+
+		r := newTestRepository(ctx, t, c)
+		todos, err := r.GetTodos(ctx)
+		if err != nil {
+			t.Fatalf("could not get todos: %v", err)
+		}
+
+		expectedTodosLen := 2
+		if len(todos) != expectedTodosLen {
+			t.Fatalf("todos length does not match: expected: %d != actual: %d",
+				expectedTodosLen,
+				len(todos),
 			)
 		}
 	})
