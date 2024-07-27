@@ -179,8 +179,8 @@ func (r *Repository) CreateTodo(ctx context.Context, todo todos.Todo) (createdTo
 func (r *Repository) SaveTodo(ctx context.Context, todo todos.Todo) (savedTodo todos.Todo, err error) {
 	rows, err := r.pool.Query(ctx,
 		`
-		UPDATE todos (description, completed_at, updated_at)
-		VALUES ($2, $3, Now())
+		UPDATE todos
+		SET description = $2, completed_at = $3, updated_at = NOW()
 		WHERE id=$1
 		RETURNING id, description, completed_at, created_at, updated_at
 		`,
