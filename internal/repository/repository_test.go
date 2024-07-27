@@ -62,7 +62,7 @@ func TestRepository(t *testing.T) {
 			)
 		}
 	})
-	t.Run("Get todo", func(t *testing.T) {
+	t.Run("Get existing todo", func(t *testing.T) {
 		t.Cleanup(func() {
 			restoreDatabase(ctx, t, c)
 		})
@@ -84,6 +84,22 @@ func TestRepository(t *testing.T) {
 				expectedDescription,
 				todo.Description,
 			)
+		}
+	})
+	t.Run("Get non-existing todo", func(t *testing.T) {
+		t.Cleanup(func() {
+			restoreDatabase(ctx, t, c)
+		})
+
+		r := newTestRepository(ctx, t, c)
+		id, err := uuid.Parse("be95c29a-c4dd-4d31-a5c4-d229f3374ab7")
+		if err != nil {
+			t.Fatalf("could not parse uuid: %v", err)
+		}
+
+		_, err = r.GetTodo(ctx, id)
+		if !errors.Is(err, ErrTodoNotFound) {
+			t.Fatalf("todo should not be found: expected: %v != actual: %v", ErrTodoNotFound, err)
 		}
 	})
 	t.Run("Get todos", func(t *testing.T) {
