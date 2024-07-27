@@ -145,6 +145,11 @@ func (r *Repository) GetTodo(ctx context.Context, id uuid.UUID) (t todos.Todo, e
 	}
 
 	t, err = pgx.CollectOneRow(rows, pgx.RowToStructByName[todos.Todo])
+	if errors.Is(err, pgx.ErrNoRows) {
+		err = ErrTodoNotFound
+		return
+	}
+
 	if err != nil {
 		err = fmt.Errorf("%w: %w", ErrDatabase, err)
 		return
