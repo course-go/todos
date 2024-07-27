@@ -162,16 +162,20 @@ func (r *Repository) SaveTodo(ctx context.Context, todo todos.Todo) (savedTodo t
 }
 
 func (r *Repository) DeleteTodo(ctx context.Context, id uuid.UUID) error {
-	_, err := r.pool.Exec(ctx,
+	c, err := r.pool.Exec(ctx,
 		`
-		UPDATE todos (deleted_at)
-		VALUES (Now())
+		UPDATE todos
+		SET deleted_at=Now()
 		WHERE id=$1
 		`,
-		id,
+		id.String(),
 	)
 	if err != nil {
 		return fmt.Errorf("%w: %w", ErrDatabase, err)
+	}
+
+	if c.RowsAffected() == 0 {
+		return ErrTodoNotFound
 	}
 
 	return nil
