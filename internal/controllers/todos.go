@@ -22,7 +22,7 @@ type UpdateTodoRequest struct {
 	CompletedAt *time.Time `json:"completedAt"`
 }
 
-func (a API) getTodos(w http.ResponseWriter, r *http.Request) {
+func (a API) GetTodos(w http.ResponseWriter, r *http.Request) {
 	todos, err := a.repository.GetTodos(r.Context())
 	if err != nil {
 		slog.Error("failed retrieving todos",
@@ -48,7 +48,7 @@ func (a API) getTodos(w http.ResponseWriter, r *http.Request) {
 	w.Write(bytes)
 }
 
-func (a API) getTodo(w http.ResponseWriter, r *http.Request) {
+func (a API) GetTodo(w http.ResponseWriter, r *http.Request) {
 	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		slog.Error("failed parsing uuid",
@@ -97,7 +97,7 @@ func (a API) getTodo(w http.ResponseWriter, r *http.Request) {
 	w.Write(bytes)
 }
 
-func (a API) createTodo(w http.ResponseWriter, r *http.Request) {
+func (a API) CreateTodo(w http.ResponseWriter, r *http.Request) {
 	body := r.Body
 	bodyBytes, err := io.ReadAll(body)
 	if err != nil {
@@ -152,7 +152,7 @@ func (a API) createTodo(w http.ResponseWriter, r *http.Request) {
 	w.Write(bytes)
 }
 
-func (a API) updateTodo(w http.ResponseWriter, r *http.Request) {
+func (a API) UpdateTodo(w http.ResponseWriter, r *http.Request) {
 	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		slog.Error("failed parsing uuid",
@@ -222,7 +222,7 @@ func (a API) updateTodo(w http.ResponseWriter, r *http.Request) {
 	w.Write(bytes)
 }
 
-func (a API) deleteTodo(w http.ResponseWriter, r *http.Request) {
+func (a API) DeleteTodo(w http.ResponseWriter, r *http.Request) {
 	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		slog.Error("failed parsing uuid",

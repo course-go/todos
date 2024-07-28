@@ -15,24 +15,28 @@ type API struct {
 	repository *repository.Repository
 }
 
-func NewRouter(logger *slog.Logger, config *config.Config, repository *repository.Repository) *http.ServeMux {
-	mux := http.NewServeMux()
-	logger = logger.With("component", "api")
-	api := &API{
+func NewAPI(logger *slog.Logger, config *config.Config, repository *repository.Repository) API {
+	return API{
 		logger:     logger,
 		config:     config,
 		repository: repository,
 	}
+}
+
+func NewRouter(logger *slog.Logger, config *config.Config, repository *repository.Repository) *http.ServeMux {
+	mux := http.NewServeMux()
+	logger = logger.With("component", "api")
+	api := NewAPI(logger, config, repository)
 	api.mountTodoControllers(mux)
 	return mux
 }
 
 func (a API) mountTodoControllers(mux *http.ServeMux) {
-	mux.HandleFunc("GET /api/v1/todos", a.getTodos)
-	mux.HandleFunc("GET /api/v1/todos/{id}", a.getTodo)
-	mux.HandleFunc("POST /api/v1/todos", a.createTodo)
-	mux.HandleFunc("PUT /api/v1/todos/{id}", a.updateTodo)
-	mux.HandleFunc("DELETE /api/v1/todos/{id}", a.deleteTodo)
+	mux.HandleFunc("GET /api/v1/todos", a.GetTodos)
+	mux.HandleFunc("GET /api/v1/todos/{id}", a.GetTodo)
+	mux.HandleFunc("POST /api/v1/todos", a.CreateTodo)
+	mux.HandleFunc("PUT /api/v1/todos/{id}", a.UpdateTodo)
+	mux.HandleFunc("DELETE /api/v1/todos/{id}", a.DeleteTodo)
 }
 
 type Response struct {
