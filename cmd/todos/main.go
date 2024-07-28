@@ -38,7 +38,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	logger, err := logger.New(config)
+	logger, err := logger.New(&config.Logging)
 	if err != nil {
 		slog.Error("failed creating logger",
 			"error", err,

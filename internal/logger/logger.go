@@ -10,8 +10,8 @@ import (
 
 var ErrUnknownLogLevel = errors.New("unknown log level")
 
-func New(config *config.Config) (logger *slog.Logger, err error) {
-	level, err := parseLogLevel(config.Logging.Level)
+func New(config *config.Logging) (logger *slog.Logger, err error) {
+	level, err := parseLogLevel(config.Level)
 	if err != nil {
 		return
 	}
