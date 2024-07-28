@@ -15,9 +15,7 @@ import (
 	"github.com/course-go/todos/internal/repository"
 )
 
-var (
-	Version string
-)
+var Version string
 
 var (
 	versionFlag    = flag.Bool("version", false, "output program version and exit")
