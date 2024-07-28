@@ -60,7 +60,7 @@ func New(
 	return
 }
 
-func (r *Repository) Migrate() error {
+func (r Repository) Migrate() error {
 	databaseURL := fmt.Sprintf("%s://%s:%s@%s:%s/%s",
 		"pgx5", // golang-migrate uses "stdlib registered" drivers set by imports
 		r.config.User,
@@ -106,7 +106,7 @@ func (r *Repository) Migrate() error {
 	return nil
 }
 
-func (r *Repository) GetTodos(ctx context.Context) (t []todos.Todo, err error) {
+func (r Repository) GetTodos(ctx context.Context) (t []todos.Todo, err error) {
 	rows, err := r.pool.Query(ctx,
 		`
 		SELECT id, description, completed_at, created_at, updated_at
@@ -130,7 +130,7 @@ func (r *Repository) GetTodos(ctx context.Context) (t []todos.Todo, err error) {
 	return
 }
 
-func (r *Repository) GetTodo(ctx context.Context, id uuid.UUID) (t todos.Todo, err error) {
+func (r Repository) GetTodo(ctx context.Context, id uuid.UUID) (t todos.Todo, err error) {
 	rows, err := r.pool.Query(ctx,
 		`
 		SELECT id, description, completed_at, created_at, updated_at
@@ -158,7 +158,7 @@ func (r *Repository) GetTodo(ctx context.Context, id uuid.UUID) (t todos.Todo, e
 	return
 }
 
-func (r *Repository) CreateTodo(ctx context.Context, todo todos.Todo) (createdTodo todos.Todo, err error) {
+func (r Repository) CreateTodo(ctx context.Context, todo todos.Todo) (createdTodo todos.Todo, err error) {
 	rows, err := r.pool.Query(ctx,
 		`
 		INSERT INTO todos (description)
@@ -181,7 +181,7 @@ func (r *Repository) CreateTodo(ctx context.Context, todo todos.Todo) (createdTo
 	return
 }
 
-func (r *Repository) SaveTodo(ctx context.Context, todo todos.Todo) (savedTodo todos.Todo, err error) {
+func (r Repository) SaveTodo(ctx context.Context, todo todos.Todo) (savedTodo todos.Todo, err error) {
 	rows, err := r.pool.Query(ctx,
 		`
 		UPDATE todos
@@ -212,7 +212,7 @@ func (r *Repository) SaveTodo(ctx context.Context, todo todos.Todo) (savedTodo t
 	return
 }
 
-func (r *Repository) DeleteTodo(ctx context.Context, id uuid.UUID) error {
+func (r Repository) DeleteTodo(ctx context.Context, id uuid.UUID) error {
 	c, err := r.pool.Exec(ctx,
 		`
 		UPDATE todos
