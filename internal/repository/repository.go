@@ -2,23 +2,17 @@ package repository
 
 import (
 	"context"
-	"embed"
 	"errors"
 	"fmt"
 	"log/slog"
 
 	"github.com/course-go/todos/internal/config"
 	"github.com/course-go/todos/internal/todos"
-	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/pgx/v5" // Used to register "pgx5" driver used for migrations.
-	"github.com/golang-migrate/migrate/v4/source/iofs"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
-
-//go:embed migrations/*.sql
-var embedMigrations embed.FS
 
 var (
 	ErrMigrations   = errors.New("failed migrating database schema")
@@ -58,52 +52,6 @@ func New(
 		pool:   pool,
 	}
 	return
-}
-
-func (r Repository) Migrate() error {
-	databaseURL := fmt.Sprintf("%s://%s:%s@%s:%s/%s",
-		"pgx5", // golang-migrate uses "stdlib registered" drivers set by imports
-		r.config.User,
-		r.config.Password,
-		r.config.Host,
-		r.config.Port,
-		r.config.Name,
-	)
-	d, err := iofs.New(embedMigrations, "migrations")
-	if err != nil {
-		return fmt.Errorf("failed initializing driver from iofs: %w", err)
-	}
-
-	m, err := migrate.NewWithSourceInstance("iofs", d, databaseURL)
-	if err != nil {
-		return fmt.Errorf("failed creating migrations: %w", err)
-	}
-
-	defer func() {
-		srcErr, dbErr := m.Close()
-		if srcErr != nil {
-			r.logger.Warn("failed closing migrations source: %w",
-				"error", srcErr,
-			)
-		}
-
-		if dbErr != nil {
-			r.logger.Warn("failed closing database after migrations",
-				"error", dbErr,
-			)
-		}
-	}()
-	err = m.Up()
-	if errors.Is(err, migrate.ErrNoChange) {
-		r.logger.Info("database schema is up to date")
-		return nil
-	}
-
-	if err != nil {
-		return fmt.Errorf("failed applying migrations: %w", err)
-	}
-
-	return nil
 }
 
 func (r Repository) GetTodos(ctx context.Context) (t []todos.Todo, err error) {

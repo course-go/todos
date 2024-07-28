@@ -45,16 +45,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	ctx := context.Background()
-	repository, err := repository.New(ctx, logger, &config.Database)
-	if err != nil {
-		logger.Error("failed creating todo repository",
-			"error", err,
-		)
-		os.Exit(1)
-	}
-
-	err = repository.Migrate()
+	err = repository.Migrate(&config.Database, logger)
 	if err != nil {
 		logger.Error("failed migrating database",
 			"error", err,
@@ -62,7 +53,16 @@ func main() {
 		os.Exit(1)
 	}
 
-	mux := controllers.NewRouter(logger, config, repository)
+	ctx := context.Background()
+	repo, err := repository.New(ctx, logger, &config.Database)
+	if err != nil {
+		logger.Error("failed creating todo repository",
+			"error", err,
+		)
+		os.Exit(1)
+	}
+
+	mux := controllers.NewRouter(logger, config, repo)
 	hostname := fmt.Sprintf("%s:%s",
 		config.Service.Host,
 		config.Service.Port,
