@@ -22,7 +22,7 @@ func TestRepository(t *testing.T) {
 			t.Logf("failed terminating postgres container: %v", err)
 		}
 	})
-	cfg := test.NewTestRepositoryConfig(ctx, t, c)
+	cfg := test.NewTestDatabaseConfig(ctx, t, c)
 	logger := test.NewTestLogger(t)
 	err := repository.Migrate(cfg, logger)
 	if err != nil {
