@@ -20,12 +20,7 @@ func TestConfig(t *testing.T) {
 		}
 	})
 	_, err = io.WriteString(f,
-		`service:
-  name: todos
-  port: 8080
-logging:
-  level: info
-database:
+		`database:
   protocol: postgres
   user: postgres
   password: postgres
