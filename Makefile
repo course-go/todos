@@ -2,6 +2,9 @@ COMPOSE_PROFILE?=all
 VERSION=$(shell git describe --tags --dirty --abbrev=4 || echo "0.0.0-devel")
 LDFLAGS="-X main.Version=$(VERSION)"
 
+.PHONY: all
+all: build lint test
+
 .PHONY: build
 build:
 	go build -ldflags $(LDFLAGS) -o bin/todos cmd/todos/main.go
