@@ -3,6 +3,7 @@ package test
 import (
 	"context"
 	"log/slog"
+	"os"
 	"testing"
 	"time"
 
@@ -23,8 +24,18 @@ func NewTestRepository(
 	ctx context.Context,
 	t *testing.T,
 	logger *slog.Logger,
-	c *postgres.PostgresContainer,
+	cfg *config.Database,
 ) *repository.Repository {
+	t.Helper()
+	r, err := repository.New(ctx, logger, cfg)
+	if err != nil {
+		t.Fatalf("failed to create repository: %v", err)
+	}
+
+	return r
+}
+
+func NewTestRepositoryConfig(ctx context.Context, t *testing.T, c *postgres.PostgresContainer) *config.Database {
 	t.Helper()
 	host, err := c.Host(ctx)
 	if err != nil {
@@ -36,7 +47,7 @@ func NewTestRepository(
 		t.Fatalf("failed getting container port: %v", err)
 	}
 
-	cfg := config.Database{
+	return &config.Database{
 		Protocol: "postgres",
 		User:     dbUser,
 		Password: dbPass,
@@ -44,12 +55,6 @@ func NewTestRepository(
 		Port:     port.Port(),
 		Name:     dbName,
 	}
-	r, err := repository.New(ctx, logger, &cfg)
-	if err != nil {
-		t.Fatalf("failed to create repository: %v", err)
-	}
-
-	return r
 }
 
 func NewTestContainer(ctx context.Context, t *testing.T) *postgres.PostgresContainer {
@@ -70,6 +75,20 @@ func NewTestContainer(ctx context.Context, t *testing.T) *postgres.PostgresConta
 	}
 
 	return c
+}
+
+func SeedDatabase(ctx context.Context, t *testing.T, c *postgres.PostgresContainer) {
+	t.Helper()
+	bytes, err := os.ReadFile("testdata/seed.sql")
+	if err != nil {
+		t.Fatalf("could not read seed file: %v", err)
+	}
+
+	seedQuery := string(bytes)
+	_, _, err = c.Exec(ctx, []string{"psql", "-U", dbUser, "-d", dbName, "-c", seedQuery})
+	if err != nil {
+		t.Fatalf("failed executing seeding commands: %v", err)
+	}
 }
 
 func RestoreDatabase(ctx context.Context, t *testing.T, c *postgres.PostgresContainer) {
