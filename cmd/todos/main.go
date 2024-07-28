@@ -16,8 +16,12 @@ import (
 )
 
 var (
-	Version     string
-	versionFlag = flag.Bool("version", false, "output program version and exit")
+	Version string
+)
+
+var (
+	versionFlag    = flag.Bool("version", false, "output program version and exit")
+	configPathFlag = flag.String("config", "/etc/course-go/todos/config.yaml", "path to config file")
 )
 
 func main() {
@@ -27,10 +31,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	configPath := flag.String("config", "/etc/course-go/todos/config.yaml", "path to config file")
-	flag.Parse()
-
-	config, err := config.Parse(*configPath)
+	config, err := config.Parse(*configPathFlag)
 	if err != nil {
 		slog.Error("failed parsing config",
 			"error", err,
