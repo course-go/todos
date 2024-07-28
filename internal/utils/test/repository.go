@@ -59,7 +59,11 @@ func NewTestContainer(ctx context.Context, t *testing.T) *postgres.PostgresConta
 
 func SeedDatabase(ctx context.Context, t *testing.T, c *postgres.PostgresContainer) {
 	t.Helper()
-	_, filename, _, _ := runtime.Caller(0)
+	_, filename, _, ok := runtime.Caller(0)
+	if !ok {
+		t.Fatalf("failed retrieving current runtime filename")
+	}
+
 	dir := path.Join(path.Dir(filename), "testdata")
 	files, err := os.ReadDir(dir)
 	if err != nil {
@@ -77,7 +81,6 @@ func SeedDatabase(ctx context.Context, t *testing.T, c *postgres.PostgresContain
 		if err != nil {
 			t.Fatalf("failed executing seeding commands: %v", err)
 		}
-
 	}
 }
 
