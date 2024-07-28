@@ -17,7 +17,7 @@ import (
 
 var (
 	Version     string
-	versionFlag = flag.Bool("version", false, "output program version")
+	versionFlag = flag.Bool("version", false, "output program version and exit")
 )
 
 func main() {
@@ -78,6 +78,7 @@ func main() {
 	}
 	logger.Info("starting server",
 		"service", config.Service.Name,
+		"version", Version,
 		"hostname", hostname,
 	)
 	err = server.ListenAndServe()
