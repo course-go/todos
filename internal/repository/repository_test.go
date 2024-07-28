@@ -22,18 +22,25 @@ func TestRepository(t *testing.T) {
 			t.Logf("failed terminating postgres container: %v", err)
 		}
 	})
-	err := c.Snapshot(ctx, postgres.WithSnapshotName("test-todos"))
+	cfg := test.NewTestRepositoryConfig(ctx, t, c)
+	logger := test.NewTestLogger(t)
+	err := repository.Migrate(cfg, logger)
+	if err != nil {
+		t.Fatalf("failed migrating database: %v", err)
+	}
+
+	test.SeedDatabase(ctx, t, c)
+	err = c.Snapshot(ctx, postgres.WithSnapshotName("test-todos"))
 	if err != nil {
 		t.Fatalf("failed creating database snapshot: %v", err)
 	}
 
-	logger := test.NewTestLogger(t)
 	t.Run("Create todo", func(t *testing.T) {
 		t.Cleanup(func() {
 			test.RestoreDatabase(ctx, t, c)
 		})
 
-		r := test.NewTestRepository(ctx, t, logger, c)
+		r := test.NewTestRepository(ctx, t, logger, cfg)
 		todo := todos.Todo{
 			Description: "Mop the floor",
 		}
@@ -59,7 +66,7 @@ func TestRepository(t *testing.T) {
 			test.RestoreDatabase(ctx, t, c)
 		})
 
-		r := test.NewTestRepository(ctx, t, logger, c)
+		r := test.NewTestRepository(ctx, t, logger, cfg)
 		id, err := uuid.Parse("f52bad23-c201-414e-9bdb-af4327c42aa7")
 		if err != nil {
 			t.Fatalf("could not parse uuid: %v", err)
@@ -83,7 +90,7 @@ func TestRepository(t *testing.T) {
 			test.RestoreDatabase(ctx, t, c)
 		})
 
-		r := test.NewTestRepository(ctx, t, logger, c)
+		r := test.NewTestRepository(ctx, t, logger, cfg)
 		id, err := uuid.Parse("be95c29a-c4dd-4d31-a5c4-d229f3374ab7")
 		if err != nil {
 			t.Fatalf("could not parse uuid: %v", err)
@@ -99,7 +106,7 @@ func TestRepository(t *testing.T) {
 			test.RestoreDatabase(ctx, t, c)
 		})
 
-		r := test.NewTestRepository(ctx, t, logger, c)
+		r := test.NewTestRepository(ctx, t, logger, cfg)
 		todos, err := r.GetTodos(ctx)
 		if err != nil {
 			t.Fatalf("could not get todos: %v", err)
@@ -118,7 +125,7 @@ func TestRepository(t *testing.T) {
 			test.RestoreDatabase(ctx, t, c)
 		})
 
-		r := test.NewTestRepository(ctx, t, logger, c)
+		r := test.NewTestRepository(ctx, t, logger, cfg)
 		id, err := uuid.Parse("62446c85-3798-471f-abb8-75c1cdd7153b")
 		if err != nil {
 			t.Fatalf("could not parse uuid: %v", err)
@@ -154,7 +161,7 @@ func TestRepository(t *testing.T) {
 			test.RestoreDatabase(ctx, t, c)
 		})
 
-		r := test.NewTestRepository(ctx, t, logger, c)
+		r := test.NewTestRepository(ctx, t, logger, cfg)
 		id, err := uuid.Parse("ac4011ce-59c9-4361-8abf-10abd273d5e5")
 		if err != nil {
 			t.Fatalf("could not parse uuid: %v", err)
@@ -175,7 +182,7 @@ func TestRepository(t *testing.T) {
 			test.RestoreDatabase(ctx, t, c)
 		})
 
-		r := test.NewTestRepository(ctx, t, logger, c)
+		r := test.NewTestRepository(ctx, t, logger, cfg)
 		id, err := uuid.Parse("f52bad23-c201-414e-9bdb-af4327c42aa7")
 		if err != nil {
 			t.Fatalf("could not parse uuid: %v", err)
@@ -191,7 +198,7 @@ func TestRepository(t *testing.T) {
 			test.RestoreDatabase(ctx, t, c)
 		})
 
-		r := test.NewTestRepository(ctx, t, logger, c)
+		r := test.NewTestRepository(ctx, t, logger, cfg)
 		id, err := uuid.Parse("4fabcaa9-7fe6-4129-86f2-1d62d142a67b")
 		if err != nil {
 			t.Fatalf("could not parse uuid: %v", err)
