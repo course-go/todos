@@ -2,6 +2,7 @@ package test
 
 import (
 	"context"
+	"log/slog"
 	"testing"
 	"time"
 
@@ -18,7 +19,12 @@ const (
 	dbName = "todos"
 )
 
-func NewTestRepository(ctx context.Context, t *testing.T, c *postgres.PostgresContainer) *repository.Repository {
+func NewTestRepository(
+	ctx context.Context,
+	t *testing.T,
+	logger *slog.Logger,
+	c *postgres.PostgresContainer,
+) *repository.Repository {
 	t.Helper()
 	host, err := c.Host(ctx)
 	if err != nil {
@@ -38,7 +44,6 @@ func NewTestRepository(ctx context.Context, t *testing.T, c *postgres.PostgresCo
 		Port:     port.Port(),
 		Name:     dbName,
 	}
-	logger := NewTestLogger(t)
 	r, err := repository.New(ctx, logger, &cfg)
 	if err != nil {
 		t.Fatalf("failed to create repository: %v", err)
