@@ -28,23 +28,23 @@ var (
 
 type Repository struct {
 	logger *slog.Logger
-	config *config.Config
+	config *config.Database
 	pool   *pgxpool.Pool
 }
 
 func New(
 	ctx context.Context,
 	logger *slog.Logger,
-	config *config.Config,
+	config *config.Database,
 ) (repository *Repository, err error) {
 	logger = logger.With("component", "repository")
 	databaseURL := fmt.Sprintf("%s://%s:%s@%s:%s/%s",
-		config.Database.Protocol,
-		config.Database.User,
-		config.Database.Password,
-		config.Database.Host,
-		config.Database.Port,
-		config.Database.Name,
+		config.Protocol,
+		config.User,
+		config.Password,
+		config.Host,
+		config.Port,
+		config.Name,
 	)
 	pool, err := pgxpool.New(ctx, databaseURL)
 	if err != nil {
@@ -63,11 +63,11 @@ func New(
 func (r *Repository) Migrate() error {
 	databaseURL := fmt.Sprintf("%s://%s:%s@%s:%s/%s",
 		"pgx5", // golang-migrate uses "stdlib registered" drivers set by imports
-		r.config.Database.User,
-		r.config.Database.Password,
-		r.config.Database.Host,
-		r.config.Database.Port,
-		r.config.Database.Name,
+		r.config.User,
+		r.config.Password,
+		r.config.Host,
+		r.config.Port,
+		r.config.Name,
 	)
 	d, err := iofs.New(embedMigrations, "migrations")
 	if err != nil {

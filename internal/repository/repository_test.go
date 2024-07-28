@@ -248,15 +248,13 @@ func newTestRepository(ctx context.Context, t *testing.T, c *postgres.PostgresCo
 		t.Fatalf("failed getting container port: %v", err)
 	}
 
-	cfg := config.Config{
-		Database: config.Database{
-			Protocol: "postgres",
-			User:     dbUser,
-			Password: dbPass,
-			Host:     host,
-			Port:     port.Port(),
-			Name:     dbName,
-		},
+	cfg := config.Database{
+		Protocol: "postgres",
+		User:     dbUser,
+		Password: dbPass,
+		Host:     host,
+		Port:     port.Port(),
+		Name:     dbName,
 	}
 	logger := newTestLogger(t)
 	r, err := New(ctx, logger, &cfg)

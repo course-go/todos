@@ -47,7 +47,7 @@ func main() {
 	}
 
 	ctx := context.Background()
-	repository, err := repository.New(ctx, logger, config)
+	repository, err := repository.New(ctx, logger, &config.Database)
 	if err != nil {
 		logger.Error("failed creating todo repository",
 			"error", err,
