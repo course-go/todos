@@ -59,10 +59,6 @@ func NewTestContainer(ctx context.Context, t *testing.T) *postgres.PostgresConta
 		postgres.WithDatabase(dbName),
 		postgres.WithUsername(dbUser),
 		postgres.WithPassword(dbPass),
-		postgres.WithInitScripts(
-			"migrations/20240713140024_init.up.sql",
-			"testdata/seed.sql",
-		),
 		postgres.WithSQLDriver("pgx5"),
 		testcontainers.WithWaitStrategy(
 			wait.ForLog("database system is ready to accept connections").
