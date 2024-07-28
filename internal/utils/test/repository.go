@@ -4,6 +4,8 @@ import (
 	"context"
 	"log/slog"
 	"os"
+	"path"
+	"runtime"
 	"testing"
 	"time"
 
@@ -57,15 +59,25 @@ func NewTestContainer(ctx context.Context, t *testing.T) *postgres.PostgresConta
 
 func SeedDatabase(ctx context.Context, t *testing.T, c *postgres.PostgresContainer) {
 	t.Helper()
-	bytes, err := os.ReadFile("testdata/seed.sql")
+	_, filename, _, _ := runtime.Caller(0)
+	dir := path.Join(path.Dir(filename), "testdata")
+	files, err := os.ReadDir(dir)
 	if err != nil {
-		t.Fatalf("could not read seed file: %v", err)
+		t.Fatalf("failed reading directory %s: %v", dir, err)
 	}
 
-	seedQuery := string(bytes)
-	_, _, err = c.Exec(ctx, []string{"psql", "-U", dbUser, "-d", dbName, "-c", seedQuery})
-	if err != nil {
-		t.Fatalf("failed executing seeding commands: %v", err)
+	for _, file := range files {
+		bytes, err := os.ReadFile(path.Join(dir, file.Name()))
+		if err != nil {
+			t.Fatalf("could not read seed file: %v", err)
+		}
+
+		seedQuery := string(bytes)
+		_, _, err = c.Exec(ctx, []string{"psql", "-U", dbUser, "-d", dbName, "-c", seedQuery})
+		if err != nil {
+			t.Fatalf("failed executing seeding commands: %v", err)
+		}
+
 	}
 }
 
