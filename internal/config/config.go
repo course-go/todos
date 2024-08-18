@@ -12,7 +12,7 @@ type Service struct {
 	Name     string `yaml:"name,omitempty"`
 	Host     string `yaml:"host,omitempty"`
 	Port     string `yaml:"port,omitempty"`
-	Location string `yaml:"location",omitempty"`
+	Location string `yaml:"location,omitempty"`
 }
 
 type Logging struct {
