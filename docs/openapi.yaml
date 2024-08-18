@@ -41,14 +41,14 @@ paths:
                       {
                         id: d1b9e736-e664-4f29-9000-5c826f6ad84c,
                         description: Do the dishes,
-                        completedAt: "2024-05-05 10:52:34.303361 +0200 CEST m=+0.000067668",
-                        createdAt: "2024-05-05 10:51:41.740638 +0200 CEST m=+0.000072793",
-                        updatedAt: "2024-05-05 10:52:34.303361 +0200 CEST m=+0.000067668"
+                        completedAt: "2024-05-05 10:52:34.303361Z",
+                        createdAt: "2024-05-05 10:51:41.740638Z",
+                        updatedAt: "2024-05-05 10:52:34.303361Z"
                       },
                       {
                         id: 7001c5a8-0349-47a8-8a95-cb7b5debac0c,
                         description: Mop the floor,
-                        createdAt: "2024-05-05 10:51:41.740638 +0200 CEST m=+0.000072793"
+                        createdAt: "2024-05-05 10:51:41.740638Z"
                       }
                     ]
         '500':
@@ -84,8 +84,8 @@ paths:
                   todo:
                     id: d1b9e736-e664-4f29-9000-5c826f6ad84c
                     description: Do the dishes
-                    createdAt: "2024-05-05 10:51:41.740638 +0200 CEST m=+0.000072793"
-                    updatedAt: "2024-05-05 10:51:41.740638 +0200 CEST m=+0.000072793"
+                    createdAt: "2024-05-05 10:51:41.740638Z"
+                    updatedAt: "2024-05-05 10:51:41.740638Z"
         '400':
           description: Invalid request body supplied
           content:
@@ -132,9 +132,9 @@ paths:
                   todo:
                     id: d1b9e736-e664-4f29-9000-5c826f6ad84c
                     description: Do the dishes
-                    completedAt: "2024-05-05 10:52:34.303361 +0200 CEST m=+0.000067668"
-                    createdAt: "2024-05-05 10:51:41.740638 +0200 CEST m=+0.000072793"
-                    updatedAt: "2024-05-05 10:52:34.303361 +0200 CEST m=+0.000067668"
+                    completedAt: "2024-05-05 10:52:34.303361Z"
+                    createdAt: "2024-05-05 10:51:41.740638Z"
+                    updatedAt: "2024-05-05 10:52:34.303361Z"
         '400':
           description: Invalid UUID supplied
           content:
@@ -181,7 +181,7 @@ paths:
               $ref: '#/components/schemas/UpdatedTodo'
             example:
               description: Do the dishes
-              completedAt: 2024-05-05 10:52:34.303361 +0200 CEST m=+0.000067668
+              completedAt: "2024-05-05 10:52:34.303361Z"
         required: true
       responses:
         '200':
@@ -273,7 +273,6 @@ components:
           type: string
           examples:
             - "4319fe6a-49bb-4599-ac66-19373960028e"
-
         description:
           type: string
           examples:
@@ -281,15 +280,15 @@ components:
         createdAt:
           type: string
           examples:
-            - "2024-05-05 10:49:25.505509 +0200 CEST m=+0.000192793"
+            - "2024-05-05 10:49:25.505509Z"
         updatedAt:
           type: string
           examples:
-            - "2024-05-05 10:49:25.505509 +0200 CEST m=+0.000192793"
+            - "2024-05-05 10:49:25.505509Z"
         completedAt:
           type: string
           examples:
-            - "2024-05-05 10:49:25.505509 +0200 CEST m=+0.000192793"
+            - "2024-05-05 10:49:25.505509Z"
     UpdatedTodo:
       type: object
       required:
@@ -303,7 +302,7 @@ components:
         completedAt:
           type: string
           examples:
-            - "2024-05-05 10:49:25.505509 +0200 CEST m=+0.000192793"
+            - "2024-05-05 10:49:25.505509Z"
     NewTodo:
       type: object
       required:
