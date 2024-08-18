@@ -38,6 +38,17 @@ func main() {
 		os.Exit(1)
 	}
 
+	location, err := time.LoadLocation(config.Service.Location)
+	if err != nil {
+		slog.Error("failed loading location",
+			"error", err,
+			"location", config.Service.Location,
+		)
+		os.Exit(1)
+	}
+
+	time.Local = location
+
 	logger, err := logger.New(&config.Logging)
 	if err != nil {
 		slog.Error("failed creating logger",
