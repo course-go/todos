@@ -125,6 +125,7 @@ func (a API) CreateTodo(w http.ResponseWriter, r *http.Request) {
 
 	todo := todos.Todo{
 		Description: request.Description,
+		CreatedAt:   a.time(),
 	}
 	todo, err = a.repository.CreateTodo(r.Context(), todo)
 	if err != nil {
@@ -190,10 +191,12 @@ func (a API) UpdateTodo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	now := a.time()
 	todo := todos.Todo{
 		ID:          id,
 		Description: request.Description,
 		CompletedAt: request.CompletedAt,
+		UpdatedAt:   &now,
 	}
 	todo, err = a.repository.SaveTodo(r.Context(), todo)
 	if err != nil {
