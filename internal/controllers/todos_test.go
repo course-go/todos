@@ -45,14 +45,14 @@ func TestTodosControllers(t *testing.T) {
 				 {
 					"id":"62446c85-3798-471f-abb8-75c1cdd7153b",
 					"description":"Mop the floor",
-					"createdAt":"2024-07-27T00:48:21.090537+02:00"
+					"createdAt":"2024-07-26T22:48:21.090537Z"
 				 },
 				 {
 					"id":"f52bad23-c201-414e-9bdb-af4327c42aa7",
 					"description":"Vacuum",
-					"createdAt":"2024-07-27T00:49:47.366006+02:00",
-					"completedAt":"2024-07-28T00:50:19.594495+02:00",
-					"updatedAt":"2024-07-28T00:50:19.594495+02:00"
+					"createdAt":"2024-07-26T22:49:47.366006Z",
+					"completedAt":"2024-07-27T22:50:19.594495Z",
+					"updatedAt":"2024-07-27T22:50:19.594495Z"
 				 }
 			  ]
 		   }
@@ -89,7 +89,7 @@ func TestTodosControllers(t *testing.T) {
 			  "todo":{
 				 "id":"62446c85-3798-471f-abb8-75c1cdd7153b",
 				 "description":"Mop the floor",
-				 "createdAt":"2024-07-27T00:48:21.090537+02:00"
+				 "createdAt":"2024-07-26T22:48:21.090537Z"
 			  }
 		   }
 		}`,
@@ -133,7 +133,7 @@ func TestTodosControllers(t *testing.T) {
 			  "todo":{
 				 "id":"bc931469-bb84-4fd0-aa6d-acfef864580d",
 				 "description":"Play some games",
-				 "createdAt":"2024-08-18T14:14:45.847679+02:00"
+				 "createdAt":"2024-08-18T12:14:45.847679Z"
 			  }
 		   }
 		}`,
@@ -208,9 +208,9 @@ func TestTodosControllers(t *testing.T) {
 			  "todo":{
 				 "id":"62446c85-3798-471f-abb8-75c1cdd7153b",
 				 "description":"Play some games",
-				 "createdAt":"2024-07-27T00:48:21.090537+02:00",
-				 "completedAt":"2024-07-29T00:51:00+02:00",
-				 "updatedAt":"2024-08-18T14:14:45.847679+02:00"
+				 "createdAt":"2024-07-26T22:48:21.090537Z",
+				 "completedAt":"2024-07-28T22:51:00Z",
+				 "updatedAt":"2024-08-18T12:14:45.847679Z"
 			  }
 		   }
 		}`,
