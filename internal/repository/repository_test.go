@@ -35,7 +35,7 @@ func TestRepository(t *testing.T) {
 		t.Fatalf("failed creating database snapshot: %v", err)
 	}
 
-	now, err := time.Parse(time.RFC3339Nano, "2024-08-18T14:14:45.847679+02:00")
+	now, err := time.Parse(time.RFC3339Nano, "2024-08-18T14:14:45.847679Z")
 	if err != nil {
 		t.Fatalf("could not parse time: %v", err)
 	}
@@ -150,15 +150,15 @@ func TestRepository(t *testing.T) {
 		}
 
 		if savedTodo.UpdatedAt == nil {
-			t.Fatalf("todo updated timestampt was not changed")
+			t.Fatalf("todo updated timestamp was not changed")
 		}
 
 		nowRounded := now.Round(time.Millisecond)
-		todoRounded := savedTodo.CompletedAt.Round(time.Millisecond)
+		todoRounded := savedTodo.UpdatedAt.Round(time.Millisecond)
 		if !todoRounded.Equal(nowRounded) {
-			t.Fatalf("todo completed timestampt does not match: expected: %s != actual: %s",
-				now.String(),
-				savedTodo.UpdatedAt.String(),
+			t.Fatalf("todo completed timestamp does not match: expected: %s != actual: %s",
+				nowRounded,
+				todoRounded,
 			)
 		}
 	})
