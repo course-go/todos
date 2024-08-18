@@ -29,17 +29,8 @@ func TestTodosControllers(t *testing.T) {
 		r.ServeHTTP(rr, req)
 
 		res := rr.Result()
-		if res.StatusCode != http.StatusOK {
-			t.Errorf("expected status %d but was %d", http.StatusOK, res.StatusCode)
-		}
-
-		actualBodyBytes, err := io.ReadAll(res.Body)
-		if err != nil {
-			t.Errorf("could not read body bytes: %v", err)
-		}
-
-		expectedBodyBytes := []byte(`
-		{
+		compareResponseCodes(t, res, http.StatusOK)
+		expectedBodyBytes := []byte(`{
 		   "data":{
 			  "todos":[
 				 {
@@ -56,14 +47,9 @@ func TestTodosControllers(t *testing.T) {
 				 }
 			  ]
 		   }
-		}`,
-		)
-		compareResponseBodies(t, expectedBodyBytes, actualBodyBytes)
-
-		contentType := res.Header.Get("Content-Type")
-		if contentType != "application/json" {
-			t.Errorf("expected applications/json content type but was %s", contentType)
-		}
+		}`)
+		compareResponseBodies(t, res, expectedBodyBytes)
+		compareResponseContentTypes(t, res, "application/json")
 	})
 	t.Run("Get existing Todo", func(t *testing.T) {
 		todoID := "62446c85-3798-471f-abb8-75c1cdd7153b"
@@ -74,17 +60,8 @@ func TestTodosControllers(t *testing.T) {
 		r.ServeHTTP(rr, req)
 
 		res := rr.Result()
-		if res.StatusCode != http.StatusOK {
-			t.Errorf("expected status %d but was %d", http.StatusOK, res.StatusCode)
-		}
-
-		actualBodyBytes, err := io.ReadAll(res.Body)
-		if err != nil {
-			t.Errorf("could not read body bytes: %v", err)
-		}
-
-		expectedBodyBytes := []byte(`
-		{
+		compareResponseCodes(t, res, http.StatusOK)
+		expectedBodyBytes := []byte(`{
 		   "data":{
 			  "todo":{
 				 "id":"62446c85-3798-471f-abb8-75c1cdd7153b",
@@ -92,15 +69,9 @@ func TestTodosControllers(t *testing.T) {
 				 "createdAt":"2024-07-26T22:48:21.090537Z"
 			  }
 		   }
-		}`,
-		)
-
-		compareResponseBodies(t, expectedBodyBytes, actualBodyBytes)
-
-		contentType := res.Header.Get("Content-Type")
-		if contentType != "application/json" {
-			t.Errorf("expected applications/json content type but was %s", contentType)
-		}
+		}`)
+		compareResponseBodies(t, res, expectedBodyBytes)
+		compareResponseContentTypes(t, res, "application/json")
 	})
 	t.Run("Get non-existing Todo", func(t *testing.T) {
 		todoID := "d8d5141a-ad8c-486a-9d4d-6bda9c7cb33c"
@@ -111,28 +82,10 @@ func TestTodosControllers(t *testing.T) {
 		r.ServeHTTP(rr, req)
 
 		res := rr.Result()
-		if res.StatusCode != http.StatusNotFound {
-			t.Errorf("expected status %d but was %d", http.StatusNotFound, res.StatusCode)
-		}
-
-		actualBodyBytes, err := io.ReadAll(res.Body)
-		if err != nil {
-			t.Errorf("could not read body bytes: %v", err)
-		}
-
-		t.Log(string(actualBodyBytes))
-		expectedBodyBytes := []byte(`
-		{
-			"error":"Not Found"
-		}`,
-		)
-
-		compareResponseBodies(t, expectedBodyBytes, actualBodyBytes)
-
-		contentType := res.Header.Get("Content-Type")
-		if contentType != "application/json" {
-			t.Errorf("expected applications/json content type but was %s", contentType)
-		}
+		compareResponseCodes(t, res, http.StatusNotFound)
+		expectedBodyBytes := []byte(`{"error":"Not Found"}`)
+		compareResponseBodies(t, res, expectedBodyBytes)
+		compareResponseContentTypes(t, res, "application/json")
 	})
 	t.Run("Create Todo", func(t *testing.T) {
 		body := controllers.CreateTodoRequest{
@@ -150,17 +103,8 @@ func TestTodosControllers(t *testing.T) {
 		r.ServeHTTP(rr, req)
 
 		res := rr.Result()
-		if res.StatusCode != http.StatusCreated {
-			t.Errorf("expected status %d but was %d", http.StatusCreated, res.StatusCode)
-		}
-
-		actualBodyBytes, err = io.ReadAll(res.Body)
-		if err != nil {
-			t.Errorf("could not read body bytes: %v", err)
-		}
-
-		expectedBodyBytes := []byte(`
-		{
+		compareResponseCodes(t, res, http.StatusCreated)
+		expectedBodyBytes := []byte(`{
 		   "data":{
 			  "todo":{
 				 "id":"bc931469-bb84-4fd0-aa6d-acfef864580d",
@@ -168,13 +112,17 @@ func TestTodosControllers(t *testing.T) {
 				 "createdAt":"2024-08-18T12:14:45.847679Z"
 			  }
 		   }
-		}`,
-		)
+		}`)
 
 		var expectedResponseBody controllers.Response
 		err = json.Unmarshal(expectedBodyBytes, &expectedResponseBody)
 		if err != nil {
 			t.Errorf("could not unmarshal expected body bytes: %v", err)
+		}
+
+		actualBodyBytes, err = io.ReadAll(res.Body)
+		if err != nil {
+			t.Errorf("could not read body bytes: %v", err)
 		}
 
 		var actualResponseBody controllers.Response
@@ -196,10 +144,7 @@ func TestTodosControllers(t *testing.T) {
 			)
 		}
 
-		contentType := res.Header.Get("Content-Type")
-		if contentType != "application/json" {
-			t.Errorf("expected applications/json content type but was %s", contentType)
-		}
+		compareResponseContentTypes(t, res, "application/json")
 	})
 	t.Run("Create Todo with invalid body", func(t *testing.T) {
 		body := controllers.CreateTodoRequest{}
@@ -215,26 +160,10 @@ func TestTodosControllers(t *testing.T) {
 		r.ServeHTTP(rr, req)
 
 		res := rr.Result()
-		if res.StatusCode != http.StatusBadRequest {
-			t.Errorf("expected status %d but was %d", http.StatusBadRequest, res.StatusCode)
-		}
-
-		actualBodyBytes, err = io.ReadAll(res.Body)
-		if err != nil {
-			t.Errorf("could not read body bytes: %v", err)
-		}
-
-		expectedBodyBytes := []byte(`
-		{
-		   "error":"Bad Request"
-		}`,
-		)
-		compareResponseBodies(t, expectedBodyBytes, actualBodyBytes)
-
-		contentType := res.Header.Get("Content-Type")
-		if contentType != "application/json" {
-			t.Errorf("expected applications/json content type but was %s", contentType)
-		}
+		compareResponseCodes(t, res, http.StatusBadRequest)
+		expectedBodyBytes := []byte(`{"error":"Bad Request"}`)
+		compareResponseBodies(t, res, expectedBodyBytes)
+		compareResponseContentTypes(t, res, "application/json")
 	})
 	t.Run("Edit existing Todo", func(t *testing.T) {
 		completedAt, err := time.Parse(time.DateTime, "2024-07-28 22:51:00")
@@ -260,17 +189,8 @@ func TestTodosControllers(t *testing.T) {
 		r.ServeHTTP(rr, req)
 
 		res := rr.Result()
-		if res.StatusCode != http.StatusOK {
-			t.Errorf("expected status %d but was %d", http.StatusOK, res.StatusCode)
-		}
-
-		actualBodyBytes, err = io.ReadAll(res.Body)
-		if err != nil {
-			t.Errorf("could not read body bytes: %v", err)
-		}
-
-		expectedBodyBytes := []byte(`
-		{
+		compareResponseCodes(t, res, http.StatusOK)
+		expectedBodyBytes := []byte(`{
 		   "data":{
 			  "todo":{
 				 "id":"62446c85-3798-471f-abb8-75c1cdd7153b",
@@ -280,14 +200,9 @@ func TestTodosControllers(t *testing.T) {
 				 "updatedAt":"2024-08-18T12:14:45.847679Z"
 			  }
 		   }
-		}`,
-		)
-		compareResponseBodies(t, expectedBodyBytes, actualBodyBytes)
-
-		contentType := res.Header.Get("Content-Type")
-		if contentType != "application/json" {
-			t.Errorf("expected applications/json content type but was %s", contentType)
-		}
+		}`)
+		compareResponseBodies(t, res, expectedBodyBytes)
+		compareResponseContentTypes(t, res, "application/json")
 	})
 	t.Run("Edit non-existing Todo", func(t *testing.T) {
 		completedAt, err := time.Parse(time.DateTime, "2024-07-28 22:51:00")
@@ -313,26 +228,10 @@ func TestTodosControllers(t *testing.T) {
 		r.ServeHTTP(rr, req)
 
 		res := rr.Result()
-		if res.StatusCode != http.StatusNotFound {
-			t.Errorf("expected status %d but was %d", http.StatusNotFound, res.StatusCode)
-		}
-
-		actualBodyBytes, err = io.ReadAll(res.Body)
-		if err != nil {
-			t.Errorf("could not read body bytes: %v", err)
-		}
-
-		expectedBodyBytes := []byte(`
-		{
-			"error":"Not Found"
-		}`,
-		)
-		compareResponseBodies(t, expectedBodyBytes, actualBodyBytes)
-
-		contentType := res.Header.Get("Content-Type")
-		if contentType != "application/json" {
-			t.Errorf("expected applications/json content type but was %s", contentType)
-		}
+		compareResponseCodes(t, res, http.StatusNotFound)
+		expectedBodyBytes := []byte(`{"error":"Not Found"}`)
+		compareResponseBodies(t, res, expectedBodyBytes)
+		compareResponseContentTypes(t, res, "application/json")
 	})
 	t.Run("Edit Todo with invalid body", func(t *testing.T) {
 		completedAt, err := time.Parse(time.DateTime, "2024-07-28 22:51:00")
@@ -357,26 +256,10 @@ func TestTodosControllers(t *testing.T) {
 		r.ServeHTTP(rr, req)
 
 		res := rr.Result()
-		if res.StatusCode != http.StatusBadRequest {
-			t.Errorf("expected status %d but was %d", http.StatusBadRequest, res.StatusCode)
-		}
-
-		actualBodyBytes, err = io.ReadAll(res.Body)
-		if err != nil {
-			t.Errorf("could not read body bytes: %v", err)
-		}
-
-		expectedBodyBytes := []byte(`
-		{
-			"error":"Bad Request"
-		}`,
-		)
-		compareResponseBodies(t, expectedBodyBytes, actualBodyBytes)
-
-		contentType := res.Header.Get("Content-Type")
-		if contentType != "application/json" {
-			t.Errorf("expected applications/json content type but was %s", contentType)
-		}
+		compareResponseCodes(t, res, http.StatusBadRequest)
+		expectedBodyBytes := []byte(`{"error":"Bad Request"}`)
+		compareResponseBodies(t, res, expectedBodyBytes)
+		compareResponseContentTypes(t, res, "application/json")
 	})
 	t.Run("Delete existing Todo", func(t *testing.T) {
 		todoID := "62446c85-3798-471f-abb8-75c1cdd7153b"
@@ -387,23 +270,17 @@ func TestTodosControllers(t *testing.T) {
 		r.ServeHTTP(rr, req)
 
 		res := rr.Result()
-		if res.StatusCode != http.StatusNoContent {
-			t.Errorf("expected status %d but was %d", http.StatusNoContent, res.StatusCode)
-		}
-
-		bodyBytes, err := io.ReadAll(res.Body)
+		compareResponseCodes(t, res, http.StatusNoContent)
+		actualBody, err := io.ReadAll(res.Body)
 		if err != nil {
 			t.Errorf("could not read body bytes: %v", err)
 		}
 
-		if len(bodyBytes) != 0 {
-			t.Errorf("expected no bytes in body but was %d", len(bodyBytes))
+		if len(actualBody) != 0 {
+			t.Errorf("expected no bytes in body but was %d", len(actualBody))
 		}
 
-		contentType := res.Header.Get("Content-Type")
-		if contentType != "application/json" {
-			t.Errorf("expected applications/json content type but was %s", contentType)
-		}
+		compareResponseContentTypes(t, res, "application/json")
 	})
 	t.Run("Delete non-existing Todo", func(t *testing.T) {
 		todoID := "d06c0dd1-d7ae-4ca7-8df4-86a6b62f349d"
@@ -414,35 +291,36 @@ func TestTodosControllers(t *testing.T) {
 		r.ServeHTTP(rr, req)
 
 		res := rr.Result()
-		if res.StatusCode != http.StatusNotFound {
-			t.Errorf("expected status %d but was %d", http.StatusNotFound, res.StatusCode)
-		}
-
-		actualBodyBytes, err := io.ReadAll(res.Body)
-		if err != nil {
-			t.Errorf("could not read body bytes: %v", err)
-		}
-
+		compareResponseCodes(t, res, http.StatusNotFound)
 		expectedBodyBytes := []byte(`{"error":"Not Found"}`)
-		compareResponseBodies(t, expectedBodyBytes, actualBodyBytes)
-
-		contentType := res.Header.Get("Content-Type")
-		if contentType != "application/json" {
-			t.Errorf("expected applications/json content type but was %s", contentType)
-		}
+		compareResponseBodies(t, res, expectedBodyBytes)
+		compareResponseContentTypes(t, res, "application/json")
 	})
 }
 
-func compareResponseBodies(t *testing.T, expected, actual []byte) {
+func compareResponseCodes(t *testing.T, res *http.Response, expectedCode int) {
 	t.Helper()
+	actualCode := res.StatusCode
+	if expectedCode != actualCode {
+		t.Errorf("expected %d content type but was %d", expectedCode, actualCode)
+	}
+}
+
+func compareResponseBodies(t *testing.T, res *http.Response, expectedBody []byte) {
+	t.Helper()
+	actualBody, err := io.ReadAll(res.Body)
+	if err != nil {
+		t.Errorf("could not read body bytes: %v", err)
+	}
+
 	var expectedResponseBody controllers.Response
-	err := json.Unmarshal(expected, &expectedResponseBody)
+	err = json.Unmarshal(expectedBody, &expectedResponseBody)
 	if err != nil {
 		t.Errorf("could not unmarshal expected body bytes: %v", err)
 	}
 
 	var actualResponseBody controllers.Response
-	err = json.Unmarshal(actual, &actualResponseBody)
+	err = json.Unmarshal(actualBody, &actualResponseBody)
 	if err != nil {
 		t.Errorf("could not unmarshal actual body bytes: %v", err)
 	}
@@ -451,5 +329,13 @@ func compareResponseBodies(t *testing.T, expected, actual []byte) {
 		t.Errorf("expected and actual response bodies do not match: %s",
 			cmp.Diff(expectedResponseBody, actualResponseBody),
 		)
+	}
+}
+
+func compareResponseContentTypes(t *testing.T, res *http.Response, expectedType string) {
+	t.Helper()
+	actualType := res.Header.Get("Content-Type")
+	if expectedType != actualType {
+		t.Errorf("expected %s content type but was %s", expectedType, actualType)
 	}
 }
