@@ -35,6 +35,8 @@ linters-settings:
           - github.com/jackc/pgx/v5
           - github.com/golang-migrate/migrate/v4
           - github.com/testcontainers/testcontainers-go
+          - github.com/go-playground/validator/v10
+
   mnd:
     ignored-files:
       - 'main.go'
