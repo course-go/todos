@@ -14,11 +14,11 @@ import (
 )
 
 type CreateTodoRequest struct {
-	Description string `validate:"required" json:"description"`
+	Description string `json:"description" validate:"required"`
 }
 
 type UpdateTodoRequest struct {
-	Description string     `validate:"required" json:"description"`
+	Description string     `json:"description" validate:"required"`
 	CompletedAt *time.Time `json:"completedAt"`
 }
 
