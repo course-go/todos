@@ -201,6 +201,41 @@ func TestTodosControllers(t *testing.T) {
 			t.Errorf("expected applications/json content type but was %s", contentType)
 		}
 	})
+	t.Run("Create Todo with invalid body", func(t *testing.T) {
+		body := controllers.CreateTodoRequest{}
+		actualBodyBytes, err := json.Marshal(&body)
+		if err != nil {
+			t.Fatalf("failed marshaling request body: %v", err)
+		}
+
+		reader := bytes.NewReader(actualBodyBytes)
+		req := httptest.NewRequest(http.MethodPost, apiURLPrefix+"/todos", reader)
+		rr := httptest.NewRecorder()
+
+		r.ServeHTTP(rr, req)
+
+		res := rr.Result()
+		if res.StatusCode != http.StatusBadRequest {
+			t.Errorf("expected status %d but was %d", http.StatusBadRequest, res.StatusCode)
+		}
+
+		actualBodyBytes, err = io.ReadAll(res.Body)
+		if err != nil {
+			t.Errorf("could not read body bytes: %v", err)
+		}
+
+		expectedBodyBytes := []byte(`
+		{
+		   "error":"Bad Request"
+		}`,
+		)
+		compareResponseBodies(t, expectedBodyBytes, actualBodyBytes)
+
+		contentType := res.Header.Get("Content-Type")
+		if contentType != "application/json" {
+			t.Errorf("expected applications/json content type but was %s", contentType)
+		}
+	})
 	t.Run("Edit existing Todo", func(t *testing.T) {
 		completedAt, err := time.Parse(time.DateTime, "2024-07-28 22:51:00")
 		if err != nil {
@@ -290,6 +325,50 @@ func TestTodosControllers(t *testing.T) {
 		expectedBodyBytes := []byte(`
 		{
 			"error":"Not Found"
+		}`,
+		)
+		compareResponseBodies(t, expectedBodyBytes, actualBodyBytes)
+
+		contentType := res.Header.Get("Content-Type")
+		if contentType != "application/json" {
+			t.Errorf("expected applications/json content type but was %s", contentType)
+		}
+	})
+	t.Run("Edit Todo with invalid body", func(t *testing.T) {
+		completedAt, err := time.Parse(time.DateTime, "2024-07-28 22:51:00")
+		if err != nil {
+			t.Errorf("failed parsing time: %v", err)
+		}
+
+		body := controllers.UpdateTodoRequest{
+			CompletedAt: &completedAt,
+		}
+		actualBodyBytes, err := json.Marshal(&body)
+		if err != nil {
+			t.Fatalf("failed marshaling request body: %v", err)
+		}
+
+		reader := bytes.NewReader(actualBodyBytes)
+		todoID := "62446c85-3798-471f-abb8-75c1cdd7153b"
+		req := httptest.NewRequest(http.MethodPut, apiURLPrefix+"/todos/"+todoID, reader)
+		req.SetPathValue("id", todoID)
+		rr := httptest.NewRecorder()
+
+		r.ServeHTTP(rr, req)
+
+		res := rr.Result()
+		if res.StatusCode != http.StatusBadRequest {
+			t.Errorf("expected status %d but was %d", http.StatusBadRequest, res.StatusCode)
+		}
+
+		actualBodyBytes, err = io.ReadAll(res.Body)
+		if err != nil {
+			t.Errorf("could not read body bytes: %v", err)
+		}
+
+		expectedBodyBytes := []byte(`
+		{
+			"error":"Bad Request"
 		}`,
 		)
 		compareResponseBodies(t, expectedBodyBytes, actualBodyBytes)
