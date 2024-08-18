@@ -9,12 +9,14 @@ import (
 	"github.com/course-go/todos/internal/controllers/middleware"
 	"github.com/course-go/todos/internal/repository"
 	"github.com/course-go/todos/internal/time"
+	"github.com/go-playground/validator/v10"
 )
 
 type API struct {
 	logger     *slog.Logger
 	config     *config.Config
 	time       time.Factory
+	validator  *validator.Validate
 	repository *repository.Repository
 }
 
@@ -26,10 +28,12 @@ func NewAPIRouter(
 ) http.Handler {
 	mux := http.NewServeMux()
 	logger = logger.With("component", "api")
+	v := validator.New(validator.WithRequiredStructEnabled())
 	api := API{
 		logger:     logger,
 		config:     config,
 		time:       time,
+		validator:  v,
 		repository: repository,
 	}
 	api.mountTodoControllers(mux)

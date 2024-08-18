@@ -14,11 +14,11 @@ import (
 )
 
 type CreateTodoRequest struct {
-	Description string `binding:"required" json:"description"`
+	Description string `validate:"required" json:"description"`
 }
 
 type UpdateTodoRequest struct {
-	Description string     `binding:"required" json:"description"`
+	Description string     `validate:"required" json:"description"`
 	CompletedAt *time.Time `json:"completedAt"`
 }
 
@@ -123,6 +123,17 @@ func (a API) CreateTodo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	err = a.validator.Struct(request)
+	if err != nil {
+		slog.Warn("failed validating request body",
+			"error", err,
+		)
+		code := http.StatusBadRequest
+		w.WriteHeader(code)
+		w.Write(responseErrorBytes(code))
+		return
+	}
+
 	todo := todos.Todo{
 		Description: request.Description,
 		CreatedAt:   a.time(),
@@ -183,6 +194,17 @@ func (a API) UpdateTodo(w http.ResponseWriter, r *http.Request) {
 	err = json.Unmarshal(bodyBytes, &request)
 	if err != nil {
 		slog.Error("failed binding request body",
+			"error", err,
+		)
+		code := http.StatusBadRequest
+		w.WriteHeader(code)
+		w.Write(responseErrorBytes(code))
+		return
+	}
+
+	err = a.validator.Struct(request)
+	if err != nil {
+		slog.Warn("failed validating request body",
 			"error", err,
 		)
 		code := http.StatusBadRequest
