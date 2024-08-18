@@ -1,6 +1,7 @@
 service:
   name: todos
   port: 8080
+  location: UTC
 
 logging:
   level: info
