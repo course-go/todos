@@ -38,10 +38,25 @@ func TestTodosControllers(t *testing.T) {
 			t.Errorf("could not read body bytes: %v", err)
 		}
 
-		expectedBodyBytes := []byte(`{"data":{"todos":[{"id":"62446c85-3798-471f-abb8-75c1cdd7153b","description":"Mop the floor",` +
-			`"createdAt":"2024-07-27T00:48:21.090537+02:00"},{"id":"f52bad23-c201-414e-9bdb-af4327c42aa7",` +
-			`"description":"Vacuum","createdAt":"2024-07-27T00:49:47.366006+02:00",` +
-			`"completedAt":"2024-07-28T00:50:19.594495+02:00","updatedAt":"2024-07-28T00:50:19.594495+02:00"}]}}`,
+		expectedBodyBytes := []byte(`
+		{
+		   "data":{
+			  "todos":[
+				 {
+					"id":"62446c85-3798-471f-abb8-75c1cdd7153b",
+					"description":"Mop the floor",
+					"createdAt":"2024-07-27T00:48:21.090537+02:00"
+				 },
+				 {
+					"id":"f52bad23-c201-414e-9bdb-af4327c42aa7",
+					"description":"Vacuum",
+					"createdAt":"2024-07-27T00:49:47.366006+02:00",
+					"completedAt":"2024-07-28T00:50:19.594495+02:00",
+					"updatedAt":"2024-07-28T00:50:19.594495+02:00"
+				 }
+			  ]
+		   }
+		}`,
 		)
 		compareResponseBodies(t, expectedBodyBytes, actualBodyBytes)
 
@@ -68,8 +83,16 @@ func TestTodosControllers(t *testing.T) {
 			t.Errorf("could not read body bytes: %v", err)
 		}
 
-		expectedBodyBytes := []byte(`{"data":{"todo":{"id":"62446c85-3798-471f-abb8-75c1cdd7153b",` +
-			`"description":"Mop the floor","createdAt":"2024-07-27T00:48:21.090537+02:00"}}}`,
+		expectedBodyBytes := []byte(`
+		{
+		   "data":{
+			  "todo":{
+				 "id":"62446c85-3798-471f-abb8-75c1cdd7153b",
+				 "description":"Mop the floor",
+				 "createdAt":"2024-07-27T00:48:21.090537+02:00"
+			  }
+		   }
+		}`,
 		)
 
 		compareResponseBodies(t, expectedBodyBytes, actualBodyBytes)
@@ -104,8 +127,16 @@ func TestTodosControllers(t *testing.T) {
 			t.Errorf("could not read body bytes: %v", err)
 		}
 
-		expectedBodyBytes := []byte(`{"data":{"todo":{"id":"bc931469-bb84-4fd0-aa6d-acfef864580d",` +
-			`"description":"Play some games","createdAt":"2024-08-18T14:14:45.847679+02:00"}}}`,
+		expectedBodyBytes := []byte(`
+		{
+		   "data":{
+			  "todo":{
+				 "id":"bc931469-bb84-4fd0-aa6d-acfef864580d",
+				 "description":"Play some games",
+				 "createdAt":"2024-08-18T14:14:45.847679+02:00"
+			  }
+		   }
+		}`,
 		)
 
 		var expectedResponseBody controllers.Response
@@ -171,9 +202,18 @@ func TestTodosControllers(t *testing.T) {
 			t.Errorf("could not read body bytes: %v", err)
 		}
 
-		expectedBodyBytes := []byte(`{"data":{"todo":{"id":"62446c85-3798-471f-abb8-75c1cdd7153b",` +
-			`"description":"Play some games","createdAt":"2024-07-27T00:48:21.090537+02:00",` +
-			`"completedAt":"2024-07-29T00:51:00+02:00","updatedAt":"2024-08-18T14:14:45.847679+02:00"}}}`,
+		expectedBodyBytes := []byte(`
+		{
+		   "data":{
+			  "todo":{
+				 "id":"62446c85-3798-471f-abb8-75c1cdd7153b",
+				 "description":"Play some games",
+				 "createdAt":"2024-07-27T00:48:21.090537+02:00",
+				 "completedAt":"2024-07-29T00:51:00+02:00",
+				 "updatedAt":"2024-08-18T14:14:45.847679+02:00"
+			  }
+		   }
+		}`,
 		)
 		compareResponseBodies(t, expectedBodyBytes, actualBodyBytes)
 
