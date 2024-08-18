@@ -13,3 +13,4 @@ database:
   host: postgres
   port: 5432
   name: todos
+  options: sslmode=disable&options=-c%20TimeZone%3DUTC
