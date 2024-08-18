@@ -6,29 +6,35 @@ import (
 	"net/http"
 
 	"github.com/course-go/todos/internal/config"
+	"github.com/course-go/todos/internal/controllers/middleware"
 	"github.com/course-go/todos/internal/repository"
+	"github.com/course-go/todos/internal/time"
 )
 
 type API struct {
 	logger     *slog.Logger
 	config     *config.Config
+	time       time.Factory
 	repository *repository.Repository
 }
 
-func NewAPI(logger *slog.Logger, config *config.Config, repository *repository.Repository) API {
-	return API{
-		logger:     logger,
-		config:     config,
-		repository: repository,
-	}
-}
-
-func NewRouter(logger *slog.Logger, config *config.Config, repository *repository.Repository) *http.ServeMux {
+func NewAPIRouter(
+	logger *slog.Logger,
+	config *config.Config,
+	time time.Factory,
+	repository *repository.Repository,
+) http.Handler {
 	mux := http.NewServeMux()
 	logger = logger.With("component", "api")
-	api := NewAPI(logger, config, repository)
+	api := API{
+		logger:     logger,
+		config:     config,
+		time:       time,
+		repository: repository,
+	}
 	api.mountTodoControllers(mux)
-	return mux
+	router := api.addMiddleware(mux, logger)
+	return router
 }
 
 func (a API) mountTodoControllers(mux *http.ServeMux) {
@@ -37,6 +43,13 @@ func (a API) mountTodoControllers(mux *http.ServeMux) {
 	mux.HandleFunc("POST /api/v1/todos", a.CreateTodo)
 	mux.HandleFunc("PUT /api/v1/todos/{id}", a.UpdateTodo)
 	mux.HandleFunc("DELETE /api/v1/todos/{id}", a.DeleteTodo)
+}
+
+func (a API) addMiddleware(mux *http.ServeMux, logger *slog.Logger) http.Handler {
+	loggingMiddleware := middleware.Logging(logger)
+	router := loggingMiddleware(mux)
+	router = middleware.ContentType(router)
+	return router
 }
 
 type Response struct {
