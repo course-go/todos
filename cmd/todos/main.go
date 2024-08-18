@@ -47,7 +47,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	time.Local = location
+	time.Local = location //nolint: gosmopolitan
 
 	logger, err := logger.New(&config.Logging)
 	if err != nil {
