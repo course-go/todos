@@ -43,6 +43,7 @@ func TestRepository(t *testing.T) {
 		r := test.NewTestRepository(ctx, t, logger, cfg)
 		todo := todos.Todo{
 			Description: "Mop the floor",
+			CreatedAt:   time.Now(),
 		}
 		createdTodo, err := r.CreateTodo(ctx, todo)
 		if err != nil {
@@ -138,6 +139,7 @@ func TestRepository(t *testing.T) {
 
 		now := time.Now()
 		todo.CompletedAt = &now
+		todo.UpdatedAt = &now
 		savedTodo, err := r.SaveTodo(ctx, todo)
 		if err != nil {
 			t.Fatalf("could not save todo: %v", err)
