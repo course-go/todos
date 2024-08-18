@@ -33,13 +33,14 @@ func New(
 	config *config.Database,
 ) (repository *Repository, err error) {
 	logger = logger.With("component", "repository")
-	databaseURL := fmt.Sprintf("%s://%s:%s@%s:%s/%s",
+	databaseURL := fmt.Sprintf("%s://%s:%s@%s:%s/%s?%s",
 		config.Protocol,
 		config.User,
 		config.Password,
 		config.Host,
 		config.Port,
 		config.Name,
+		config.Options,
 	)
 	pool, err := pgxpool.New(ctx, databaseURL)
 	if err != nil {
@@ -47,6 +48,10 @@ func New(
 		return
 	}
 
+	logger.Info(
+		"created pgx pool",
+		"databaseURL", databaseURL,
+	)
 	repository = &Repository{
 		logger: logger,
 		config: config,
