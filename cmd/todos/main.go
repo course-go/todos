@@ -87,10 +87,22 @@ func main() {
 		IdleTimeout:       30 * time.Second,
 		Handler:           mux,
 	}
+
+	logger.Info("                                                     ")
+	logger.Info("    /$$$$$$$$              /$$                       ")
+	logger.Info("   |__  $$__/             | $$                       ")
+	logger.Info("      | $$  /$$$$$$   /$$$$$$$  /$$$$$$   /$$$$$$$   ")
+	logger.Info("      | $$ /$$__  $$ /$$__  $$ /$$__  $$ /$$_____/   ")
+	logger.Info("      | $$| $$  ⧹ $$| $$  | $$| $$  ⧹ $$|  $$$$$$    ")
+	logger.Info("      | $$| $$  | $$| $$  | $$| $$  | $$ ⧹____  $$   ")
+	logger.Info("      | $$|  $$$$$$/|  $$$$$$$|  $$$$$$/ /$$$$$$$/   ")
+	logger.Info("      |__/ ⧹______/  ⧹_______/ ⧹______/ |_______/    ")
+	logger.Info("                                                     ")
 	logger.Info("starting server",
 		"service", config.Service.Name,
 		"version", Version,
 		"hostname", hostname,
+		"location", config.Service.Location,
 	)
 	err = server.ListenAndServe()
 	if err != nil {
