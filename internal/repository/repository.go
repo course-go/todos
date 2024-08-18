@@ -109,11 +109,12 @@ func (r Repository) GetTodo(ctx context.Context, id uuid.UUID) (t todos.Todo, er
 func (r Repository) CreateTodo(ctx context.Context, todo todos.Todo) (createdTodo todos.Todo, err error) {
 	rows, err := r.pool.Query(ctx,
 		`
-		INSERT INTO todos (description)
-		VALUES ($1)
+		INSERT INTO todos (description, created_at)
+		VALUES ($1, $2)
 		RETURNING id, description, completed_at, created_at, updated_at
 		`,
 		todo.Description,
+		todo.CreatedAt,
 	)
 	if err != nil {
 		err = fmt.Errorf("failed querying database: %w", err)
@@ -133,13 +134,14 @@ func (r Repository) SaveTodo(ctx context.Context, todo todos.Todo) (savedTodo to
 	rows, err := r.pool.Query(ctx,
 		`
 		UPDATE todos
-		SET description = $2, completed_at = $3, updated_at = NOW()
+		SET description = $2, completed_at = $3, updated_at = $4
 		WHERE id=$1
 		RETURNING id, description, completed_at, created_at, updated_at
 		`,
 		todo.ID,
 		todo.Description,
 		todo.CompletedAt,
+		todo.UpdatedAt,
 	)
 	if err != nil {
 		err = fmt.Errorf("failed querying database: %w", err)
