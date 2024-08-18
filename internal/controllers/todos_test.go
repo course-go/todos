@@ -102,6 +102,38 @@ func TestTodosControllers(t *testing.T) {
 			t.Errorf("expected applications/json content type but was %s", contentType)
 		}
 	})
+	t.Run("Get non-existing Todo", func(t *testing.T) {
+		todoID := "d8d5141a-ad8c-486a-9d4d-6bda9c7cb33c"
+		req := httptest.NewRequest(http.MethodGet, apiURLPrefix+"/todos/"+todoID, nil)
+		req.SetPathValue("id", todoID)
+		rr := httptest.NewRecorder()
+
+		r.ServeHTTP(rr, req)
+
+		res := rr.Result()
+		if res.StatusCode != http.StatusNotFound {
+			t.Errorf("expected status %d but was %d", http.StatusNotFound, res.StatusCode)
+		}
+
+		actualBodyBytes, err := io.ReadAll(res.Body)
+		if err != nil {
+			t.Errorf("could not read body bytes: %v", err)
+		}
+
+		t.Log(string(actualBodyBytes))
+		expectedBodyBytes := []byte(`
+		{
+			"error":"Not Found"
+		}`,
+		)
+
+		compareResponseBodies(t, expectedBodyBytes, actualBodyBytes)
+
+		contentType := res.Header.Get("Content-Type")
+		if contentType != "application/json" {
+			t.Errorf("expected applications/json content type but was %s", contentType)
+		}
+	})
 	t.Run("Create Todo", func(t *testing.T) {
 		body := controllers.CreateTodoRequest{
 			Description: "Play some games",
@@ -213,6 +245,51 @@ func TestTodosControllers(t *testing.T) {
 				 "updatedAt":"2024-08-18T12:14:45.847679Z"
 			  }
 		   }
+		}`,
+		)
+		compareResponseBodies(t, expectedBodyBytes, actualBodyBytes)
+
+		contentType := res.Header.Get("Content-Type")
+		if contentType != "application/json" {
+			t.Errorf("expected applications/json content type but was %s", contentType)
+		}
+	})
+	t.Run("Edit non-existing Todo", func(t *testing.T) {
+		completedAt, err := time.Parse(time.DateTime, "2024-07-28 22:51:00")
+		if err != nil {
+			t.Errorf("failed parsing time: %v", err)
+		}
+
+		body := controllers.UpdateTodoRequest{
+			Description: "Play some games",
+			CompletedAt: &completedAt,
+		}
+		actualBodyBytes, err := json.Marshal(&body)
+		if err != nil {
+			t.Fatalf("failed marshaling request body: %v", err)
+		}
+
+		reader := bytes.NewReader(actualBodyBytes)
+		todoID := "cba6b1a9-3533-4eff-8649-a075229b1c3d"
+		req := httptest.NewRequest(http.MethodPut, apiURLPrefix+"/todos/"+todoID, reader)
+		req.SetPathValue("id", todoID)
+		rr := httptest.NewRecorder()
+
+		r.ServeHTTP(rr, req)
+
+		res := rr.Result()
+		if res.StatusCode != http.StatusNotFound {
+			t.Errorf("expected status %d but was %d", http.StatusNotFound, res.StatusCode)
+		}
+
+		actualBodyBytes, err = io.ReadAll(res.Body)
+		if err != nil {
+			t.Errorf("could not read body bytes: %v", err)
+		}
+
+		expectedBodyBytes := []byte(`
+		{
+			"error":"Not Found"
 		}`,
 		)
 		compareResponseBodies(t, expectedBodyBytes, actualBodyBytes)
