@@ -9,9 +9,10 @@ import (
 )
 
 type Service struct {
-	Name string `yaml:"name,omitempty"`
-	Host string `yaml:"host,omitempty"`
-	Port string `yaml:"port,omitempty"`
+	Name     string `yaml:"name,omitempty"`
+	Host     string `yaml:"host,omitempty"`
+	Port     string `yaml:"port,omitempty"`
+	Location string `yaml:"location",omitempty"`
 }
 
 type Logging struct {
@@ -65,6 +66,10 @@ func setDefaults(cfg *Config) {
 
 	if cfg.Service.Port == "" {
 		cfg.Service.Name = "8080"
+	}
+
+	if cfg.Service.Location == "" {
+		cfg.Service.Location = "Local"
 	}
 
 	if cfg.Logging.Level == "" {
