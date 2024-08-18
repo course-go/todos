@@ -199,6 +199,17 @@ func (a API) UpdateTodo(w http.ResponseWriter, r *http.Request) {
 		UpdatedAt:   &now,
 	}
 	todo, err = a.repository.SaveTodo(r.Context(), todo)
+	if errors.Is(err, repository.ErrTodoNotFound) {
+		slog.Warn("failed saving todo",
+			"error", err,
+			"id", todo.ID,
+		)
+		code := http.StatusNotFound
+		w.WriteHeader(code)
+		w.Write(responseErrorBytes(code))
+		return
+	}
+
 	if err != nil {
 		slog.Error("failed saving todo",
 			"error", err,
