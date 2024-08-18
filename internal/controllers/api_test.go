@@ -8,6 +8,7 @@ import (
 )
 
 func TestAPIValidateSchema(t *testing.T) {
+	t.Skip() // TODO: kin-openapi does not currently support OpenAPI v3.1
 	ctx := context.Background()
 	doc, err := openapi3.NewLoader().LoadFromFile("../../docs/openapi.yaml")
 	if err != nil {
