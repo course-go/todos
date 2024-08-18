@@ -238,7 +238,7 @@ func (a API) DeleteTodo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = a.repository.DeleteTodo(r.Context(), id)
+	err = a.repository.DeleteTodo(r.Context(), id, a.time())
 	if errors.Is(err, repository.ErrTodoNotFound) {
 		slog.Debug("no matching id for todo",
 			"id", id,

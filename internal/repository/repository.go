@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"time"
 
 	"github.com/course-go/todos/internal/config"
 	"github.com/course-go/todos/internal/todos"
@@ -162,14 +163,15 @@ func (r Repository) SaveTodo(ctx context.Context, todo todos.Todo) (savedTodo to
 	return
 }
 
-func (r Repository) DeleteTodo(ctx context.Context, id uuid.UUID) error {
+func (r Repository) DeleteTodo(ctx context.Context, id uuid.UUID, deletedAt time.Time) error {
 	c, err := r.pool.Exec(ctx,
 		`
 		UPDATE todos
-		SET deleted_at=Now()
+		SET deleted_at=$2
 		WHERE id=$1
 		`,
-		id.String(),
+		id,
+		deletedAt,
 	)
 	if err != nil {
 		return fmt.Errorf("%w: %w", ErrDatabase, err)

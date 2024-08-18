@@ -35,6 +35,11 @@ func TestRepository(t *testing.T) {
 		t.Fatalf("failed creating database snapshot: %v", err)
 	}
 
+	now, err := time.Parse(time.RFC3339Nano, "2024-08-18T14:14:45.847679+02:00")
+	if err != nil {
+		t.Fatalf("could not parse time: %v", err)
+	}
+
 	t.Run("Create todo", func(t *testing.T) {
 		t.Cleanup(func() {
 			test.RestoreDatabase(ctx, t, c)
@@ -43,7 +48,7 @@ func TestRepository(t *testing.T) {
 		r := test.NewTestRepository(ctx, t, logger, cfg)
 		todo := todos.Todo{
 			Description: "Mop the floor",
-			CreatedAt:   time.Now(),
+			CreatedAt:   now,
 		}
 		createdTodo, err := r.CreateTodo(ctx, todo)
 		if err != nil {
@@ -137,7 +142,6 @@ func TestRepository(t *testing.T) {
 			t.Fatalf("could not get todo: %v", err)
 		}
 
-		now := time.Now()
 		todo.CompletedAt = &now
 		todo.UpdatedAt = &now
 		savedTodo, err := r.SaveTodo(ctx, todo)
@@ -190,7 +194,7 @@ func TestRepository(t *testing.T) {
 			t.Fatalf("could not parse uuid: %v", err)
 		}
 
-		err = r.DeleteTodo(ctx, id)
+		err = r.DeleteTodo(ctx, id, now)
 		if err != nil {
 			t.Fatalf("todo should be deleted: expected: nil != actual: %v", err)
 		}
@@ -206,7 +210,7 @@ func TestRepository(t *testing.T) {
 			t.Fatalf("could not parse uuid: %v", err)
 		}
 
-		err = r.DeleteTodo(ctx, id)
+		err = r.DeleteTodo(ctx, id, now)
 		if !errors.Is(err, repository.ErrTodoNotFound) {
 			t.Fatalf("todo should not be found: expected: %v != actual: %v", repository.ErrTodoNotFound, err)
 		}
