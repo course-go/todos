@@ -21,7 +21,7 @@ const apiURLPrefix = "/api/v1"
 func TestTodosControllers(t *testing.T) {
 	ctx := context.Background()
 	logger := test.NewTestLogger(t)
-	r := test.NewTestRouter(ctx, t, logger)
+	r := newTestRouter(ctx, t, logger)
 	t.Run("Get Todos", func(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, apiURLPrefix+"/todos", nil)
 		rr := httptest.NewRecorder()
