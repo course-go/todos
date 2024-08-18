@@ -15,4 +15,6 @@ This project uses:
 - [pgx](https://github.com/jackc/pgx) for database access
 - [migrate](https://github.com/jackc/pgx) for managing database migrations
 - [slog](https://pkg.go.dev/log/slog) for logging
+- [uuid](https://github.com/google/uuid) for IDs
+- [go-cmp](https://github.com/google/go-cmp) for struct comparisons
 - [testcontainers](https://github.com/testcontainers/testcontainers-go) for testing with dependencies
