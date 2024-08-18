@@ -13,6 +13,7 @@ import (
 	"github.com/course-go/todos/internal/controllers"
 	"github.com/course-go/todos/internal/logger"
 	"github.com/course-go/todos/internal/repository"
+	ttime "github.com/course-go/todos/internal/time"
 )
 
 var Version string
@@ -62,7 +63,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	mux := controllers.NewRouter(logger, config, repo)
+	mux := controllers.NewAPIRouter(logger, config, ttime.Now(), repo)
 	hostname := fmt.Sprintf("%s:%s",
 		config.Service.Host,
 		config.Service.Port,
