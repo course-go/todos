@@ -54,6 +54,7 @@ func NewAPIRouter(
 
 func (a API) mountCommonControllers(mux *http.ServeMux) {
 	mux.Handle("/metrics", promhttp.Handler())
+	mux.HandleFunc("/", NotFound)
 }
 
 func (a API) mountTodoControllers(mux *http.ServeMux) {
