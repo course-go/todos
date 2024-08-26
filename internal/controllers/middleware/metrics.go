@@ -19,7 +19,7 @@ func Metrics(metrics *metrics.Metrics) func(http.Handler) http.Handler {
 			next.ServeHTTP(w, r)
 			duration := time.Since(start)
 
-			ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+			ctx, cancel := context.WithTimeout(context.WithoutCancel(r.Context()), time.Second)
 			defer cancel()
 			set := attribute.NewSet(
 				attribute.KeyValue{
