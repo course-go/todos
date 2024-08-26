@@ -2,8 +2,11 @@ FROM golang:alpine AS builder
 
 WORKDIR /usr/app
 
+RUN apk update \
+    && apk --no-cache --update add build-base
+
 COPY . .
-RUN go build -v -o /usr/app/bin/todos cmd/todos/main.go
+RUN make build
 
 FROM alpine:latest
 
