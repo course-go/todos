@@ -43,7 +43,7 @@ func NewAPIRouter(
 	}
 	metrics, err := metrics.New(provider)
 	if err != nil {
-		return nil, fmt.Errorf("failed creating api metrics: %w")
+		return nil, fmt.Errorf("failed creating api metrics: %w", err)
 	}
 
 	api.mountCommonControllers(mux)
