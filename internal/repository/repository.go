@@ -44,8 +44,7 @@ func New(
 	)
 	pool, err := pgxpool.New(ctx, databaseURL)
 	if err != nil {
-		err = fmt.Errorf("failed creating pgx pool: %w", err)
-		return
+		return nil, fmt.Errorf("failed creating pgx pool: %w", err)
 	}
 
 	logger.Info(
@@ -57,7 +56,7 @@ func New(
 		config: config,
 		pool:   pool,
 	}
-	return
+	return repository, nil
 }
 
 func (r Repository) GetTodos(ctx context.Context) (t []todos.Todo, err error) {
@@ -69,19 +68,17 @@ func (r Repository) GetTodos(ctx context.Context) (t []todos.Todo, err error) {
 		`,
 	)
 	if err != nil {
-		err = fmt.Errorf("failed querying database: %w", err)
-		return
+		return nil, fmt.Errorf("failed querying database: %w", err)
 	}
 
 	// Use append to avoid returning nil slice
 	t = make([]todos.Todo, 0)
 	t, err = pgx.AppendRows(t, rows, pgx.RowToStructByName[todos.Todo])
 	if err != nil {
-		err = fmt.Errorf("%w: %w", ErrDatabase, err)
-		return
+		return nil, fmt.Errorf("%w: %w", ErrDatabase, err)
 	}
 
-	return
+	return t, nil
 }
 
 func (r Repository) GetTodo(ctx context.Context, id uuid.UUID) (t todos.Todo, err error) {
@@ -94,22 +91,19 @@ func (r Repository) GetTodo(ctx context.Context, id uuid.UUID) (t todos.Todo, er
 		id,
 	)
 	if err != nil {
-		err = fmt.Errorf("failed querying database: %w", err)
-		return
+		return todos.Todo{}, fmt.Errorf("failed querying database: %w", err)
 	}
 
 	t, err = pgx.CollectOneRow(rows, pgx.RowToStructByName[todos.Todo])
 	if errors.Is(err, pgx.ErrNoRows) {
-		err = ErrTodoNotFound
-		return
+		return todos.Todo{}, ErrTodoNotFound
 	}
 
 	if err != nil {
-		err = fmt.Errorf("%w: %w", ErrDatabase, err)
-		return
+		return todos.Todo{}, fmt.Errorf("%w: %w", ErrDatabase, err)
 	}
 
-	return
+	return t, nil
 }
 
 func (r Repository) CreateTodo(ctx context.Context, todo todos.Todo) (createdTodo todos.Todo, err error) {
@@ -123,17 +117,15 @@ func (r Repository) CreateTodo(ctx context.Context, todo todos.Todo) (createdTod
 		todo.CreatedAt,
 	)
 	if err != nil {
-		err = fmt.Errorf("failed querying database: %w", err)
-		return
+		return todos.Todo{}, fmt.Errorf("failed querying database: %w", err)
 	}
 
 	createdTodo, err = pgx.CollectOneRow(rows, pgx.RowToStructByName[todos.Todo])
 	if err != nil {
-		err = fmt.Errorf("%w: %w", ErrDatabase, err)
-		return
+		return todos.Todo{}, fmt.Errorf("%w: %w", ErrDatabase, err)
 	}
 
-	return
+	return createdTodo, nil
 }
 
 func (r Repository) SaveTodo(ctx context.Context, todo todos.Todo) (savedTodo todos.Todo, err error) {
@@ -150,22 +142,19 @@ func (r Repository) SaveTodo(ctx context.Context, todo todos.Todo) (savedTodo to
 		todo.UpdatedAt,
 	)
 	if err != nil {
-		err = fmt.Errorf("failed querying database: %w", err)
-		return
+		return todos.Todo{}, fmt.Errorf("failed querying database: %w", err)
 	}
 
 	savedTodo, err = pgx.CollectOneRow(rows, pgx.RowToStructByName[todos.Todo])
 	if errors.Is(err, pgx.ErrNoRows) {
-		err = ErrTodoNotFound
-		return
+		return todos.Todo{}, ErrTodoNotFound
 	}
 
 	if err != nil {
-		err = fmt.Errorf("%w: %w", ErrDatabase, err)
-		return
+		return todos.Todo{}, fmt.Errorf("%w: %w", ErrDatabase, err)
 	}
 
-	return
+	return savedTodo, nil
 }
 
 func (r Repository) DeleteTodo(ctx context.Context, id uuid.UUID, deletedAt time.Time) error {
