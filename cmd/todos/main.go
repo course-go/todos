@@ -14,6 +14,8 @@ import (
 	"github.com/course-go/todos/internal/logger"
 	"github.com/course-go/todos/internal/repository"
 	ttime "github.com/course-go/todos/internal/time"
+	"go.opentelemetry.io/otel/exporters/prometheus"
+	"go.opentelemetry.io/otel/sdk/metric"
 )
 
 var Version string
@@ -74,7 +76,23 @@ func main() {
 		os.Exit(1)
 	}
 
-	mux := controllers.NewAPIRouter(logger, config, ttime.Now(), repo)
+	exporter, err := prometheus.New()
+	if err != nil {
+		logger.Error("failed creating prometheus exporter",
+			"error", err,
+		)
+		os.Exit(1)
+	}
+
+	provider := metric.NewMeterProvider(metric.WithReader(exporter))
+	mux, err := controllers.NewAPIRouter(logger, config, provider, ttime.Now(), repo)
+	if err != nil {
+		logger.Error("failed creating API router",
+			"error", err,
+		)
+		os.Exit(1)
+	}
+
 	hostname := fmt.Sprintf("%s:%s",
 		config.Service.Host,
 		config.Service.Port,
