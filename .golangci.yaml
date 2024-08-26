@@ -13,7 +13,6 @@ linters:
     - nonamedreturns
     - gochecknoglobals
     - wsl
-    - nakedret
     # deprecated
     - execinquery
     - gomnd
