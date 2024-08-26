@@ -67,7 +67,7 @@ func (a API) addMiddleware(mux *http.ServeMux, logger *slog.Logger, metrics *met
 	loggingMiddleware := middleware.Logging(logger)
 	router := loggingMiddleware(mux)
 	metricsMiddleware := middleware.Metrics(metrics)
-	router = metricsMiddleware(mux)
+	router = metricsMiddleware(router)
 	router = middleware.ContentType(router)
 	return router
 }
