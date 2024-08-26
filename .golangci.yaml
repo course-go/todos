@@ -37,7 +37,6 @@ linters-settings:
           - github.com/testcontainers/testcontainers-go
           - github.com/go-playground/validator/v10
           - github.com/prometheus/client_golang
-
   mnd:
     ignored-files:
       - 'main.go'
