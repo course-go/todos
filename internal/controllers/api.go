@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"log/slog"
 	"net/http"
 
@@ -42,7 +43,7 @@ func NewAPIRouter(
 	}
 	metrics, err := metrics.New(provider)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed creating api metrics: %w")
 	}
 
 	api.mountCommonControllers(mux)
