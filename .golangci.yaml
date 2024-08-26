@@ -16,6 +16,7 @@ linters:
     # deprecated
     - execinquery
     - gomnd
+    - exportloopref
 
 linters-settings:
   errcheck:
