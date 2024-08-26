@@ -6,10 +6,13 @@ import (
 	"net/http"
 
 	"github.com/course-go/todos/internal/config"
+	"github.com/course-go/todos/internal/controllers/metrics"
 	"github.com/course-go/todos/internal/controllers/middleware"
 	"github.com/course-go/todos/internal/repository"
 	"github.com/course-go/todos/internal/time"
 	"github.com/go-playground/validator/v10"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"go.opentelemetry.io/otel/sdk/metric"
 )
 
 type API struct {
@@ -23,9 +26,10 @@ type API struct {
 func NewAPIRouter(
 	logger *slog.Logger,
 	config *config.Config,
+	provider *metric.MeterProvider,
 	time time.Factory,
 	repository *repository.Repository,
-) http.Handler {
+) (router http.Handler, err error) {
 	mux := http.NewServeMux()
 	logger = logger.With("component", "api")
 	v := validator.New(validator.WithRequiredStructEnabled())
@@ -36,9 +40,19 @@ func NewAPIRouter(
 		validator:  v,
 		repository: repository,
 	}
+	metrics, err := metrics.New(provider)
+	if err != nil {
+		return nil, err
+	}
+
+	api.mountCommonControllers(mux)
 	api.mountTodoControllers(mux)
-	router := api.addMiddleware(mux, logger)
-	return router
+	router = api.addMiddleware(mux, logger, metrics)
+	return router, nil
+}
+
+func (a API) mountCommonControllers(mux *http.ServeMux) {
+	mux.Handle("/metrics", promhttp.Handler())
 }
 
 func (a API) mountTodoControllers(mux *http.ServeMux) {
@@ -49,9 +63,11 @@ func (a API) mountTodoControllers(mux *http.ServeMux) {
 	mux.HandleFunc("DELETE /api/v1/todos/{id}", a.DeleteTodo)
 }
 
-func (a API) addMiddleware(mux *http.ServeMux, logger *slog.Logger) http.Handler {
+func (a API) addMiddleware(mux *http.ServeMux, logger *slog.Logger, metrics *metrics.Metrics) http.Handler {
 	loggingMiddleware := middleware.Logging(logger)
 	router := loggingMiddleware(mux)
+	metricsMiddleware := middleware.Metrics(metrics)
+	router = metricsMiddleware(mux)
 	router = middleware.ContentType(router)
 	return router
 }

@@ -12,6 +12,9 @@ import (
 	ttime "github.com/course-go/todos/internal/time"
 	"github.com/course-go/todos/internal/utils/test"
 	"github.com/getkin/kin-openapi/openapi3"
+	"go.opentelemetry.io/otel/exporters/prometheus"
+	"go.opentelemetry.io/otel/sdk/metric"
+
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 )
 
@@ -37,7 +40,13 @@ func newTestRouter(ctx context.Context, t *testing.T, logger *slog.Logger) http.
 	}
 
 	r := test.NewTestRepository(ctx, t, logger, cfg)
-	return controllers.NewAPIRouter(logger, nil, newTimeNow(t), r)
+	p := newMetricProvider(t)
+	router, err := controllers.NewAPIRouter(logger, nil, p, newTimeNow(t), r)
+	if err != nil {
+		t.Fatalf("failed creating api router: %v", err)
+	}
+
+	return router
 }
 
 func newTimeNow(t *testing.T) ttime.Factory {
@@ -50,6 +59,15 @@ func newTimeNow(t *testing.T) ttime.Factory {
 
 		return time
 	}
+}
+
+func newMetricProvider(t *testing.T) *metric.MeterProvider {
+	exporter, err := prometheus.New()
+	if err != nil {
+		t.Fatalf("failed creating prometheus exporter: %v", err)
+	}
+
+	return metric.NewMeterProvider(metric.WithReader(exporter))
 }
 
 func TestAPIValidateSchema(t *testing.T) {
