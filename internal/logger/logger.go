@@ -13,14 +13,14 @@ var ErrUnknownLogLevel = errors.New("unknown log level")
 func New(config *config.Logging) (logger *slog.Logger, err error) {
 	level, err := parseLogLevel(config.Level)
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	opts := slog.HandlerOptions{
 		Level: level,
 	}
 	logger = slog.New(slog.NewTextHandler(os.Stdout, &opts))
-	return
+	return logger, nil
 }
 
 func parseLogLevel(logLevel string) (level slog.Level, err error) {
@@ -37,5 +37,5 @@ func parseLogLevel(logLevel string) (level slog.Level, err error) {
 		err = ErrUnknownLogLevel
 	}
 
-	return
+	return level, err
 }
