@@ -41,6 +41,8 @@ linters-settings:
     ignored-files:
       - 'main.go'
       - '.+/test/.+.go'
+  cyclop:
+    max-complexity: 12
 
 output:
     sort-results: true
