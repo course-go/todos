@@ -16,6 +16,10 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+const (
+	databaseHealthPingPeriod = 30 * time.Second
+)
+
 var (
 	ErrMigrations   = errors.New("failed migrating database schema")
 	ErrTodoNotFound = errors.New("todo with given UUID does not exist")
@@ -57,7 +61,7 @@ func New(
 
 	checks := []health.Check{
 		{
-			Period: 30 * time.Second,
+			Period: databaseHealthPingPeriod,
 			CheckFn: func(ctx context.Context, c *health.Component) {
 				c.UpdatedAt = time.Now()
 				err := pool.Ping(ctx)
