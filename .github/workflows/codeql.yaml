@@ -10,21 +10,14 @@ on:
 
 jobs:
   analyze:
-    name: Analyze (${{ matrix.language }})
+    name: Analyze Go
     runs-on: ubuntu-latest
-    timeout-minutes: 360
+    timeout-minutes: 60
     permissions:
       security-events: write
       packages: read
       actions: read
       contents: read
-
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-        - language: go
-          build-mode: manual
 
     steps:
     - name: Checkout repository
@@ -34,13 +27,12 @@ jobs:
       uses: github/codeql-action/init@v3
       with:
         languages: go
-        build-mode: manual
 
-    - if: matrix.build-mode == 'manual'
+    - name: Build Go
       shell: bash
       run: make build
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
       with:
-        category: "/language:${{matrix.language}}"
+        category: "/language:go"
