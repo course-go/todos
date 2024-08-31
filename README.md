@@ -20,3 +20,5 @@ This project uses:
 - [uuid](https://github.com/google/uuid) for IDs
 - [go-cmp](https://github.com/google/go-cmp) for struct comparisons
 - [testcontainers](https://github.com/testcontainers/testcontainers-go) for testing with dependencies
+- [promethues/client_golang](github.com/prometheus/client_golang) for exporting Prometheus metrics
+- [opentelemetry-go](go.opentelemetry.io/otel) for instrumenting telemetry
