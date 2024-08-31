@@ -1,5 +1,5 @@
 COMPOSE_PROFILE?=all
-VERSION=$(shell git describe --tags --dirty --abbrev=4 || echo "0.0.0-devel")
+VERSION=$(shell git describe --tags --dirty --abbrev=4 2> /dev/null || echo "0.0.0-devel")
 LDFLAGS="-X main.Version=$(VERSION)"
 
 .PHONY: all
