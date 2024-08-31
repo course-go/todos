@@ -11,6 +11,7 @@ import (
 
 	"github.com/course-go/todos/internal/config"
 	"github.com/course-go/todos/internal/controllers"
+	"github.com/course-go/todos/internal/health"
 	"github.com/course-go/todos/internal/logger"
 	"github.com/course-go/todos/internal/repository"
 	ttime "github.com/course-go/todos/internal/time"
@@ -68,7 +69,15 @@ func main() {
 	}
 
 	ctx := context.Background()
-	repo, err := repository.New(ctx, logger, &config.Database)
+	registry, err := health.NewRegistry(ctx, health.WithService(config.Service.Name, Version))
+	if err != nil {
+		logger.Error("failed creating health registry",
+			"error", err,
+		)
+		os.Exit(1)
+	}
+
+	repo, err := repository.New(ctx, logger, registry, &config.Database)
 	if err != nil {
 		logger.Error("failed creating todo repository",
 			"error", err,
@@ -85,7 +94,7 @@ func main() {
 	}
 
 	provider := metric.NewMeterProvider(metric.WithReader(exporter))
-	mux, err := controllers.NewAPIRouter(logger, config, provider, ttime.Now(), repo)
+	mux, err := controllers.NewAPIRouter(logger, config, provider, ttime.Now(), registry, repo)
 	if err != nil {
 		logger.Error("failed creating API router",
 			"error", err,

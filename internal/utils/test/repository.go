@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/course-go/todos/internal/config"
+	"github.com/course-go/todos/internal/health"
 	"github.com/course-go/todos/internal/repository"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
@@ -29,7 +30,12 @@ func NewTestRepository(
 	cfg *config.Database,
 ) *repository.Repository {
 	t.Helper()
-	r, err := repository.New(ctx, logger, cfg)
+	h, err := health.NewRegistry(ctx)
+	if err != nil {
+		t.Fatalf("failed to health registry: %v", err)
+	}
+
+	r, err := repository.New(ctx, logger, h, cfg)
 	if err != nil {
 		t.Fatalf("failed to create repository: %v", err)
 	}

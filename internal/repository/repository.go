@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/course-go/todos/internal/config"
+	"github.com/course-go/todos/internal/health"
 	"github.com/course-go/todos/internal/todos"
 	_ "github.com/golang-migrate/migrate/v4/database/pgx/v5" // Used to register "pgx5" driver used for migrations.
 	"github.com/google/uuid"
@@ -22,14 +23,16 @@ var (
 )
 
 type Repository struct {
-	logger *slog.Logger
-	config *config.Database
-	pool   *pgxpool.Pool
+	logger   *slog.Logger
+	registry *health.Registry
+	config   *config.Database
+	pool     *pgxpool.Pool
 }
 
 func New(
 	ctx context.Context,
 	logger *slog.Logger,
+	registry *health.Registry,
 	config *config.Database,
 ) (repository *Repository, err error) {
 	logger = logger.With("component", "repository")
@@ -51,10 +54,31 @@ func New(
 		"created pgx pool",
 		"databaseURL", databaseURL,
 	)
+
+	checks := []health.Check{
+		{
+			Period: 30 * time.Second,
+			CheckFn: func(ctx context.Context, c *health.Component) {
+				c.UpdatedAt = time.Now()
+				err := pool.Ping(ctx)
+				if err != nil {
+					c.Health = health.ERROR
+					c.Message = err.Error()
+					return
+				}
+
+				c.Health = health.OK
+				c.Message = ""
+			},
+		},
+	}
+	registry.RegisterComponent(ctx, health.NewComponent("database", checks...))
+
 	repository = &Repository{
-		logger: logger,
-		config: config,
-		pool:   pool,
+		logger:   logger,
+		registry: registry,
+		config:   config,
+		pool:     pool,
 	}
 	return repository, nil
 }

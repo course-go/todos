@@ -9,6 +9,7 @@ import (
 	"github.com/course-go/todos/internal/config"
 	"github.com/course-go/todos/internal/controllers/metrics"
 	"github.com/course-go/todos/internal/controllers/middleware"
+	"github.com/course-go/todos/internal/health"
 	"github.com/course-go/todos/internal/repository"
 	"github.com/course-go/todos/internal/time"
 	"github.com/go-playground/validator/v10"
@@ -20,6 +21,7 @@ type API struct {
 	logger     *slog.Logger
 	config     *config.Config
 	time       time.Factory
+	registry   *health.Registry
 	validator  *validator.Validate
 	repository *repository.Repository
 }
@@ -29,6 +31,7 @@ func NewAPIRouter(
 	config *config.Config,
 	provider *metric.MeterProvider,
 	time time.Factory,
+	registry *health.Registry,
 	repository *repository.Repository,
 ) (router http.Handler, err error) {
 	mux := http.NewServeMux()
@@ -38,6 +41,7 @@ func NewAPIRouter(
 		logger:     logger,
 		config:     config,
 		time:       time,
+		registry:   registry,
 		validator:  v,
 		repository: repository,
 	}
@@ -53,6 +57,7 @@ func NewAPIRouter(
 }
 
 func (a API) mountCommonControllers(mux *http.ServeMux) {
+	mux.HandleFunc("GET /api/v1/healthz", a.Health)
 	mux.Handle("/metrics", promhttp.Handler())
 	mux.HandleFunc("/", NotFound)
 }

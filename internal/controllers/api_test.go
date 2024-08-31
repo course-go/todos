@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/course-go/todos/internal/controllers"
+	"github.com/course-go/todos/internal/health"
 	"github.com/course-go/todos/internal/repository"
 	ttime "github.com/course-go/todos/internal/time"
 	"github.com/course-go/todos/internal/utils/test"
@@ -41,7 +42,12 @@ func newTestRouter(ctx context.Context, t *testing.T, logger *slog.Logger) http.
 
 	r := test.NewTestRepository(ctx, t, logger, cfg)
 	p := newMetricProvider(t)
-	router, err := controllers.NewAPIRouter(logger, nil, p, newTimeNow(t), r)
+	h, err := health.NewRegistry(ctx)
+	if err != nil {
+		t.Fatalf("failed creating health registry: %v", err)
+	}
+
+	router, err := controllers.NewAPIRouter(logger, nil, p, newTimeNow(t), h, r)
 	if err != nil {
 		t.Fatalf("failed creating api router: %v", err)
 	}
