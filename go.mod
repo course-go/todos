@@ -1,6 +1,6 @@
 module github.com/course-go/todos
 
-go 1.23.0
+go 1.23.1
 
 require (
 	github.com/getkin/kin-openapi v0.122.0
