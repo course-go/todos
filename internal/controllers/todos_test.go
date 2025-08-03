@@ -24,6 +24,8 @@ func TestTodosControllers(t *testing.T) { //nolint: tparallel
 	logger := test.NewTestLogger(t)
 	r := newTestRouter(ctx, t, logger)
 
+	playGamesTodoID := "62446c85-3798-471f-abb8-75c1cdd7153b"
+
 	t.Run("Get Todos", func(t *testing.T) { //nolint: paralleltest
 		req := httptest.NewRequest(http.MethodGet, apiURLPrefix+"/todos", nil)
 		rr := httptest.NewRecorder()
@@ -56,9 +58,8 @@ func TestTodosControllers(t *testing.T) { //nolint: tparallel
 	})
 
 	t.Run("Get existing Todo", func(t *testing.T) { //nolint: paralleltest
-		todoID := "62446c85-3798-471f-abb8-75c1cdd7153b"
-		req := httptest.NewRequest(http.MethodGet, apiURLPrefix+"/todos/"+todoID, nil)
-		req.SetPathValue("id", todoID)
+		req := httptest.NewRequest(http.MethodGet, apiURLPrefix+"/todos/"+playGamesTodoID, nil)
+		req.SetPathValue("id", playGamesTodoID)
 
 		rr := httptest.NewRecorder()
 
@@ -200,9 +201,8 @@ func TestTodosControllers(t *testing.T) { //nolint: tparallel
 		}
 
 		reader := bytes.NewReader(actualBodyBytes)
-		todoID := "62446c85-3798-471f-abb8-75c1cdd7153b"
-		req := httptest.NewRequest(http.MethodPut, apiURLPrefix+"/todos/"+todoID, reader)
-		req.SetPathValue("id", todoID)
+		req := httptest.NewRequest(http.MethodPut, apiURLPrefix+"/todos/"+playGamesTodoID, reader)
+		req.SetPathValue("id", playGamesTodoID)
 
 		rr := httptest.NewRecorder()
 
@@ -275,9 +275,8 @@ func TestTodosControllers(t *testing.T) { //nolint: tparallel
 		}
 
 		reader := bytes.NewReader(actualBodyBytes)
-		todoID := "62446c85-3798-471f-abb8-75c1cdd7153b"
-		req := httptest.NewRequest(http.MethodPut, apiURLPrefix+"/todos/"+todoID, reader)
-		req.SetPathValue("id", todoID)
+		req := httptest.NewRequest(http.MethodPut, apiURLPrefix+"/todos/"+playGamesTodoID, reader)
+		req.SetPathValue("id", playGamesTodoID)
 
 		rr := httptest.NewRecorder()
 
@@ -292,9 +291,8 @@ func TestTodosControllers(t *testing.T) { //nolint: tparallel
 	})
 
 	t.Run("Delete existing Todo", func(t *testing.T) { //nolint: paralleltest
-		todoID := "62446c85-3798-471f-abb8-75c1cdd7153b"
-		req := httptest.NewRequest(http.MethodDelete, apiURLPrefix+"/todos/"+todoID, nil)
-		req.SetPathValue("id", todoID)
+		req := httptest.NewRequest(http.MethodDelete, apiURLPrefix+"/todos/"+playGamesTodoID, nil)
+		req.SetPathValue("id", playGamesTodoID)
 
 		rr := httptest.NewRecorder()
 
