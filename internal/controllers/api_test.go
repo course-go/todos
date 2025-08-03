@@ -71,6 +71,8 @@ func newTimeNow(t *testing.T) ttime.Factory {
 }
 
 func newMetricProvider(t *testing.T) *metric.MeterProvider {
+	t.Helper()
+
 	exporter, err := prometheus.New()
 	if err != nil {
 		t.Fatalf("failed creating prometheus exporter: %v", err)
