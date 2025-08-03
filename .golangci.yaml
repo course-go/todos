@@ -1,9 +1,11 @@
+---
+version: "2"
+
 run:
-  timeout: 3m
-  tests: false
+  tests: true
 
 linters:
-  enable-all: true
+  default: all
   disable:
     # restrictive
     - exhaustruct
@@ -13,41 +15,54 @@ linters:
     - nonamedreturns
     - gochecknoglobals
     - wsl
-    # deprecated
-    - execinquery
-    - gomnd
-    - exportloopref
+    - nakedret
+    - err113
+    - godox
+  settings:
+    depguard:
+      rules:
+        main:
+          list-mode: strict
+          files:
+            - $all
+          allow:
+            - $gostd
+            - github.com/course-go/todos
+            - github.com/testcontainers/testcontainers-go
+            - github.com/google/uuid
+            - github.com/jackc/pgx/v5
+            - github.com/golang-migrate/migrate
+            - github.com/go-playground/validator/v10
+            - go.opentelemetry.io/otel
+            - github.com/prometheus/client_golang
+            - github.com/getkin/kin-openapi
+            - github.com/google/go-cmp
+            - gopkg.in/yaml.v3
+    revive:
+      rules:
+        - name: exported
+          disabled: true
 
-linters-settings:
-  errcheck:
-    exclude-functions:
-      - (net/http.ResponseWriter).Write
-  depguard:
-    rules:
-      main:
-        list-mode: strict
-        files:
-           - $all
-        allow:
-          - $gostd
-          - github.com/course-go/todos
-          - github.com/google/uuid
-          - github.com/jackc/pgx/v5
-          - github.com/golang-migrate/migrate/v4
-          - github.com/testcontainers/testcontainers-go
-          - github.com/go-playground/validator/v10
-          - github.com/prometheus/client_golang
-  mnd:
-    ignored-files:
-      - 'main.go'
-      - '.+/test/.+.go'
-  cyclop:
-    max-complexity: 12
+formatters:
+  enable:
+    - gci
+    - gofmt
+    - gofumpt
+    - goimports
+    - golines
+  settings:
+    golines:
+      max-len: 120
+
+issues:
+  fix: true
 
 output:
-    sort-results: true
-    formats:
-      - format: colored-line-number
-        path: stdout
-      - format: colored-line-number
-        path: golangci-lint.out
+  formats:
+    text:
+      path: stdout
+    tab:
+      path: golangci-lint.out
+      colors: false
+    html:
+      path: golangci-lint.out.html
