@@ -1,3 +1,4 @@
+---
 name: todos
 
 services:
@@ -12,24 +13,24 @@ services:
       - "./configs/todos:/etc/course-go/todos"
     ports:
       - "8080:8080"
-    networks: [ todos ]
-    profiles: [ api, all ]
+    networks: [todos]
+    profiles: [api, all]
 
   postgres:
     image: "postgres:16-alpine"
     restart: "unless-stopped"
     environment:
-        POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: postgres
-        POSTGRES_DB: todos
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: todos
     ports:
       - "5432:5432"
-    networks: [ todos ]
-    profiles: [ api, dependencies, all ]
+    networks: [todos]
+    profiles: [api, dependencies, all]
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "sh -c 'pg_isready -U postgres -d todos'" ]
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U postgres -d todos'"]
       interval: 1s
       timeout: 2s
       retries: 5
@@ -40,8 +41,8 @@ services:
     command: --config.file=/etc/prometheus/prometheus.yaml
     ports:
       - "9090:9090"
-    networks: [ todos ]
-    profiles: [ all ]
+    networks: [todos]
+    profiles: [all]
     volumes:
       - ./configs/prometheus:/etc/prometheus
       - ./data/prometheus:/prometheus
@@ -51,8 +52,8 @@ services:
     restart: unless-stopped
     ports:
       - "3000:3000"
-    networks: [ todos ]
-    profiles: [ all ]
+    networks: [todos]
+    profiles: [all]
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=grafana

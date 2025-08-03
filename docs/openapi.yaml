@@ -1,3 +1,4 @@
+---
 openapi: 3.1.0
 info:
   title: Todos API
@@ -37,20 +38,15 @@ paths:
                 $ref: '#/components/schemas/ApiResponse'
               example:
                 data:
-                  todos: [
-                      {
-                        id: d1b9e736-e664-4f29-9000-5c826f6ad84c,
-                        description: Do the dishes,
-                        completedAt: "2024-05-05 10:52:34.303361Z",
-                        createdAt: "2024-05-05 10:51:41.740638Z",
-                        updatedAt: "2024-05-05 10:52:34.303361Z"
-                      },
-                      {
-                        id: 7001c5a8-0349-47a8-8a95-cb7b5debac0c,
-                        description: Mop the floor,
-                        createdAt: "2024-05-05 10:51:41.740638Z"
-                      }
-                    ]
+                  todos:
+                    - id: d1b9e736-e664-4f29-9000-5c826f6ad84c
+                      description: Do the dishes
+                      completedAt: "2024-05-05 10:52:34.303361Z"
+                      createdAt: "2024-05-05 10:51:41.740638Z"
+                      updatedAt: "2024-05-05 10:52:34.303361Z"
+                    - id: 7001c5a8-0349-47a8-8a95-cb7b5debac0c
+                      description: Mop the floor
+                      createdAt: "2024-05-05 10:51:41.740638Z"
         '500':
           description: Internal server error
           content:
@@ -116,10 +112,7 @@ paths:
           required: true
           schema:
             type: string
-            examples:
-              [
-                "d1b9e736-e664-4f29-9000-5c826f6ad84c"
-              ]
+            examples: ["d1b9e736-e664-4f29-9000-5c826f6ad84c"]
       responses:
         '200':
           description: successful operation
