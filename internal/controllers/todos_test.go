@@ -17,7 +17,7 @@ import (
 
 const apiURLPrefix = "/api/v1"
 
-func TestTodosControllers(t *testing.T) { //nolint: tparallel
+func TestTodosControllers(t *testing.T) { //nolint: cyclop, maintidx, tparallel
 	t.Parallel()
 
 	ctx := t.Context()

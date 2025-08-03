@@ -25,7 +25,7 @@ var (
 	configPathFlag = flag.String("config", "/etc/course-go/todos/config.yaml", "path to config file")
 )
 
-func main() {
+func main() { //nolint: cyclop
 	flag.Parse()
 
 	if *versionFlag {

@@ -12,7 +12,7 @@ import (
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 )
 
-func TestRepository(t *testing.T) { //nolint: tparallel
+func TestRepository(t *testing.T) { //nolint: gocognit, cyclop, maintidx, tparallel
 	t.Parallel()
 
 	ctx := t.Context()
