@@ -48,6 +48,7 @@ func NewRegistry(ctx context.Context, opts ...Option) (r *Registry, err error) {
 func (r *Registry) RegisterComponent(ctx context.Context, c *Component) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+
 	r.components = append(r.components, c)
 	go c.Watch(ctx)
 }
@@ -55,8 +56,10 @@ func (r *Registry) RegisterComponent(ctx context.Context, c *Component) {
 func (r *Registry) Report() Report {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+
 	health := OK
 	cs := make(map[string]ComponentHealth)
+
 	for _, component := range r.components {
 		report := component.Report()
 		cs[component.name] = report

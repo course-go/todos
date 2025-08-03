@@ -6,6 +6,7 @@ func WithService(name, version string) Option {
 	return func(registry *Registry) error {
 		registry.service = name
 		registry.version = version
+
 		return nil
 	}
 }

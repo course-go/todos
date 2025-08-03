@@ -15,6 +15,7 @@ func NotFound(w http.ResponseWriter, _ *http.Request) {
 
 func (a API) Health(w http.ResponseWriter, _ *http.Request) {
 	report := a.registry.Report()
+
 	reportBytes, err := json.Marshal(report)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)

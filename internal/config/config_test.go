@@ -8,6 +8,7 @@ import (
 
 func TestConfig(t *testing.T) {
 	cfgPath := "/tmp" + "/config.yaml"
+
 	f, err := os.Create(cfgPath)
 	if err != nil {
 		t.Fatalf("could not create test config file: %v", err)
@@ -19,6 +20,7 @@ func TestConfig(t *testing.T) {
 			t.Errorf("could not close test config file: %v", err)
 		}
 	})
+
 	_, err = io.WriteString(f,
 		`database:
   protocol: postgres

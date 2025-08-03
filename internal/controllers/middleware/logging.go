@@ -13,6 +13,7 @@ func Logging(logger *slog.Logger) func(http.Handler) http.Handler {
 			uri := r.RequestURI
 			method := r.Method
 			next.ServeHTTP(w, r)
+
 			duration := time.Since(start)
 			logger.Info("handled HTTP request",
 				"uri", uri,

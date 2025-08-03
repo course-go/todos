@@ -23,6 +23,7 @@ func Migrate(config *config.Database, logger *slog.Logger) error {
 		config.Port,
 		config.Name,
 	)
+
 	d, err := iofs.New(embedMigrations, "migrations")
 	if err != nil {
 		return fmt.Errorf("failed initializing driver from iofs: %w", err)
@@ -47,6 +48,7 @@ func Migrate(config *config.Database, logger *slog.Logger) error {
 			)
 		}
 	}()
+
 	err = m.Up()
 	if errors.Is(err, migrate.ErrNoChange) {
 		logger.Info("database schema is up to date")

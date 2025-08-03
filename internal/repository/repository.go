@@ -49,6 +49,7 @@ func New(
 		config.Name,
 		config.Options,
 	)
+
 	pool, err := pgxpool.New(ctx, databaseURL)
 	if err != nil {
 		return nil, fmt.Errorf("failed creating pgx pool: %w", err)
@@ -84,6 +85,7 @@ func New(
 		config:   config,
 		pool:     pool,
 	}
+
 	return repository, nil
 }
 
@@ -101,6 +103,7 @@ func (r Repository) GetTodos(ctx context.Context) (t []todos.Todo, err error) {
 
 	// Use append to avoid returning nil slice
 	t = make([]todos.Todo, 0)
+
 	t, err = pgx.AppendRows(t, rows, pgx.RowToStructByName[todos.Todo])
 	if err != nil {
 		return nil, fmt.Errorf("%w: %w", ErrDatabase, err)

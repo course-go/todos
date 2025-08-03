@@ -43,6 +43,7 @@ func (c *Component) Watch(ctx context.Context) {
 func (c *Component) Report() ComponentHealth {
 	c.mu.Lock()
 	defer c.mu.Unlock()
+
 	return ComponentHealth{
 		Health:    c.Health,
 		Message:   c.Message,

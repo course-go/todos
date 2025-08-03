@@ -30,6 +30,7 @@ func NewTestRepository(
 	cfg *config.Database,
 ) *repository.Repository {
 	t.Helper()
+
 	h, err := health.NewRegistry(ctx)
 	if err != nil {
 		t.Fatalf("failed to health registry: %v", err)
@@ -45,6 +46,7 @@ func NewTestRepository(
 
 func NewTestContainer(ctx context.Context, t *testing.T) *postgres.PostgresContainer {
 	t.Helper()
+
 	c, err := postgres.Run(ctx,
 		"docker.io/postgres:16-alpine",
 		postgres.WithDatabase(dbName),
@@ -65,12 +67,14 @@ func NewTestContainer(ctx context.Context, t *testing.T) *postgres.PostgresConta
 
 func SeedDatabase(ctx context.Context, t *testing.T, c *postgres.PostgresContainer) {
 	t.Helper()
+
 	_, filename, _, ok := runtime.Caller(0)
 	if !ok {
 		t.Fatalf("failed retrieving current runtime filename")
 	}
 
 	dir := path.Join(path.Dir(filename), "testdata")
+
 	files, err := os.ReadDir(dir)
 	if err != nil {
 		t.Fatalf("failed reading directory %s: %v", dir, err)
@@ -83,6 +87,7 @@ func SeedDatabase(ctx context.Context, t *testing.T, c *postgres.PostgresContain
 		}
 
 		seedQuery := string(bytes)
+
 		_, _, err = c.Exec(ctx, []string{"psql", "-U", dbUser, "-d", dbName, "-c", seedQuery})
 		if err != nil {
 			t.Fatalf("failed executing seeding commands: %v", err)
@@ -92,6 +97,7 @@ func SeedDatabase(ctx context.Context, t *testing.T, c *postgres.PostgresContain
 
 func RestoreDatabase(ctx context.Context, t *testing.T, c *postgres.PostgresContainer) {
 	t.Helper()
+
 	err := c.Restore(ctx, postgres.WithSnapshotName("test-todos"))
 	if err != nil {
 		t.Fatalf("failed restoring database: %v", err)

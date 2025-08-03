@@ -20,6 +20,7 @@ func New(config *config.Logging) (logger *slog.Logger, err error) {
 		Level: level,
 	}
 	logger = slog.New(slog.NewTextHandler(os.Stdout, &opts))
+
 	return logger, nil
 }
 

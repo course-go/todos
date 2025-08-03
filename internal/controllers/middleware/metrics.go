@@ -17,10 +17,12 @@ func Metrics(metrics *metrics.Metrics) func(http.Handler) http.Handler {
 			uri := r.RequestURI
 			method := r.Method
 			next.ServeHTTP(w, r)
+
 			duration := time.Since(start)
 
 			ctx, cancel := context.WithTimeout(context.WithoutCancel(r.Context()), time.Second)
 			defer cancel()
+
 			set := attribute.NewSet(
 				attribute.KeyValue{
 					Key:   "method",

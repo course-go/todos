@@ -14,6 +14,7 @@ type Metrics struct {
 
 func New(provider *sdkmetric.MeterProvider) (metrics *Metrics, err error) {
 	meter := provider.Meter("todos.http")
+
 	processedRequest, err := meter.Int64Counter("request.total")
 	if err != nil {
 		return nil, fmt.Errorf("failed creating total requests counter metric: %w", err)
@@ -28,5 +29,6 @@ func New(provider *sdkmetric.MeterProvider) (metrics *Metrics, err error) {
 		ProcessedRequests: processedRequest,
 		RequestDuration:   requestDuration,
 	}
+
 	return metrics, nil
 }

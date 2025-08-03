@@ -36,7 +36,8 @@ type Config struct {
 }
 
 func Parse(configPath string) (config *Config, err error) {
-	cfg := Config{}
+	var cfg Config
+
 	file, err := os.Open(configPath)
 	if err != nil {
 		err = fmt.Errorf("failed opening config file: %w", err)
@@ -57,6 +58,7 @@ func Parse(configPath string) (config *Config, err error) {
 
 	setDefaults(&cfg)
 	config = &cfg
+
 	return
 }
 
@@ -69,11 +71,11 @@ func setDefaults(cfg *Config) {
 		cfg.Service.Name = "8080"
 	}
 
-	if cfg.Service.Location == "" {
-		cfg.Service.Location = "Local"
+	if cfg.Location == "" {
+		cfg.Location = "Local"
 	}
 
-	if cfg.Logging.Level == "" {
-		cfg.Logging.Level = "info"
+	if cfg.Level == "" {
+		cfg.Level = "info"
 	}
 }

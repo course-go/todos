@@ -28,6 +28,7 @@ var (
 
 func main() {
 	flag.Parse()
+
 	if *versionFlag {
 		fmt.Printf("TODOS: [%s]\n", Version) //nolint: forbidigo
 		os.Exit(0)
@@ -41,11 +42,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	location, err := time.LoadLocation(config.Service.Location)
+	location, err := time.LoadLocation(config.Location)
 	if err != nil {
 		slog.Error("failed loading location",
 			"error", err,
-			"location", config.Service.Location,
+			"location", config.Location,
 		)
 		os.Exit(1)
 	}
@@ -69,6 +70,7 @@ func main() {
 	}
 
 	ctx := context.Background()
+
 	registry, err := health.NewRegistry(ctx, health.WithService(config.Service.Name, Version))
 	if err != nil {
 		logger.Error("failed creating health registry",
@@ -94,6 +96,7 @@ func main() {
 	}
 
 	provider := metric.NewMeterProvider(metric.WithReader(exporter))
+
 	mux, err := controllers.NewAPIRouter(logger, config, provider, ttime.Now(), registry, repo)
 	if err != nil {
 		logger.Error("failed creating API router",
@@ -129,8 +132,9 @@ func main() {
 		"service", config.Service.Name,
 		"version", Version,
 		"hostname", hostname,
-		"location", config.Service.Location,
+		"location", config.Location,
 	)
+
 	err = server.ListenAndServe()
 	if err != nil {
 		logger.Error("failed running server",

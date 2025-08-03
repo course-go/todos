@@ -45,6 +45,7 @@ func NewAPIRouter(
 		validator:  v,
 		repository: repository,
 	}
+
 	metrics, err := metrics.New(provider)
 	if err != nil {
 		return nil, fmt.Errorf("failed creating api metrics: %w", err)
@@ -53,6 +54,7 @@ func NewAPIRouter(
 	api.mountCommonControllers(mux)
 	api.mountTodoControllers(mux)
 	router = api.addMiddleware(mux, logger, metrics)
+
 	return router, nil
 }
 
@@ -76,6 +78,7 @@ func (a API) addMiddleware(mux *http.ServeMux, logger *slog.Logger, metrics *met
 	metricsMiddleware := middleware.Metrics(metrics)
 	router = metricsMiddleware(router)
 	router = middleware.ContentType(router)
+
 	return router
 }
 
@@ -88,6 +91,7 @@ func responseErrorBytes(httpCode int) []byte {
 	response := Response{
 		Error: http.StatusText(httpCode),
 	}
+
 	bytes, err := json.Marshal(response)
 	if err != nil {
 		return nil

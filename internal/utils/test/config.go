@@ -10,6 +10,7 @@ import (
 
 func NewTestDatabaseConfig(ctx context.Context, t *testing.T, c *postgres.PostgresContainer) *config.Database {
 	t.Helper()
+
 	host, err := c.Host(ctx)
 	if err != nil {
 		t.Fatalf("failed getting container host: %v", err)
