@@ -38,7 +38,7 @@ type Config struct {
 func Parse(configPath string) (config *Config, err error) {
 	var cfg Config
 
-	file, err := os.Open(configPath)
+	file, err := os.Open(configPath) //nolint: gosec
 	if err != nil {
 		err = fmt.Errorf("failed opening config file: %w", err)
 		return

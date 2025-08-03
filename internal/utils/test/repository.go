@@ -81,7 +81,7 @@ func SeedDatabase(ctx context.Context, t *testing.T, c *postgres.PostgresContain
 	}
 
 	for _, file := range files {
-		bytes, err := os.ReadFile(path.Join(dir, file.Name()))
+		bytes, err := os.ReadFile(path.Join(dir, file.Name())) //nolint: gosec
 		if err != nil {
 			t.Fatalf("could not read seed file: %v", err)
 		}
