@@ -21,6 +21,9 @@ const (
 	dbUser = "todos"
 	dbPass = "todos"
 	dbName = "todos"
+
+	dbWaitLogOccurrences = 2
+	dbWaitLogTimeout     = 5 * time.Second
 )
 
 func NewTestRepository(
@@ -55,8 +58,8 @@ func NewTestContainer(ctx context.Context, t *testing.T) *postgres.PostgresConta
 		postgres.WithSQLDriver("pgx5"),
 		testcontainers.WithWaitStrategy(
 			wait.ForLog("database system is ready to accept connections").
-				WithOccurrence(2).
-				WithStartupTimeout(5*time.Second)),
+				WithOccurrence(dbWaitLogOccurrences).
+				WithStartupTimeout(dbWaitLogTimeout)),
 	)
 	if err != nil {
 		t.Fatalf("failed to start container: %v", err)
