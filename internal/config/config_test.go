@@ -9,6 +9,8 @@ import (
 )
 
 func TestConfig(t *testing.T) {
+	t.Parallel()
+
 	cfgPath := "/tmp" + "/config.yaml"
 
 	f, err := os.Create(cfgPath)

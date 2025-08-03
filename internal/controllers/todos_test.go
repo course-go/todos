@@ -17,11 +17,14 @@ import (
 
 const apiURLPrefix = "/api/v1"
 
-func TestTodosControllers(t *testing.T) {
+func TestTodosControllers(t *testing.T) { //nolint: tparallel
+	t.Parallel()
+
 	ctx := t.Context()
 	logger := test.NewTestLogger(t)
 	r := newTestRouter(ctx, t, logger)
-	t.Run("Get Todos", func(t *testing.T) {
+
+	t.Run("Get Todos", func(t *testing.T) { //nolint: paralleltest
 		req := httptest.NewRequest(http.MethodGet, apiURLPrefix+"/todos", nil)
 		rr := httptest.NewRecorder()
 
@@ -51,7 +54,8 @@ func TestTodosControllers(t *testing.T) {
 		compareResponseBodies(t, res, expectedBodyBytes)
 		compareResponseContentTypes(t, res, "application/json")
 	})
-	t.Run("Get existing Todo", func(t *testing.T) {
+
+	t.Run("Get existing Todo", func(t *testing.T) { //nolint: paralleltest
 		todoID := "62446c85-3798-471f-abb8-75c1cdd7153b"
 		req := httptest.NewRequest(http.MethodGet, apiURLPrefix+"/todos/"+todoID, nil)
 		req.SetPathValue("id", todoID)
@@ -75,7 +79,8 @@ func TestTodosControllers(t *testing.T) {
 		compareResponseBodies(t, res, expectedBodyBytes)
 		compareResponseContentTypes(t, res, "application/json")
 	})
-	t.Run("Get non-existing Todo", func(t *testing.T) {
+
+	t.Run("Get non-existing Todo", func(t *testing.T) { //nolint: paralleltest
 		todoID := "d8d5141a-ad8c-486a-9d4d-6bda9c7cb33c"
 		req := httptest.NewRequest(http.MethodGet, apiURLPrefix+"/todos/"+todoID, nil)
 		req.SetPathValue("id", todoID)
@@ -91,7 +96,8 @@ func TestTodosControllers(t *testing.T) {
 		compareResponseBodies(t, res, expectedBodyBytes)
 		compareResponseContentTypes(t, res, "application/json")
 	})
-	t.Run("Create Todo", func(t *testing.T) {
+
+	t.Run("Create Todo", func(t *testing.T) { //nolint: paralleltest
 		body := controllers.CreateTodoRequest{
 			Description: "Play some games",
 		}
@@ -154,7 +160,8 @@ func TestTodosControllers(t *testing.T) {
 
 		compareResponseContentTypes(t, res, "application/json")
 	})
-	t.Run("Create Todo with invalid body", func(t *testing.T) {
+
+	t.Run("Create Todo with invalid body", func(t *testing.T) { //nolint: paralleltest
 		body := controllers.CreateTodoRequest{}
 
 		actualBodyBytes, err := json.Marshal(&body)
@@ -175,7 +182,8 @@ func TestTodosControllers(t *testing.T) {
 		compareResponseBodies(t, res, expectedBodyBytes)
 		compareResponseContentTypes(t, res, "application/json")
 	})
-	t.Run("Edit existing Todo", func(t *testing.T) {
+
+	t.Run("Edit existing Todo", func(t *testing.T) { //nolint: paralleltest
 		completedAt, err := time.Parse(time.DateTime, "2024-07-28 22:51:00")
 		if err != nil {
 			t.Errorf("failed parsing time: %v", err)
@@ -217,7 +225,8 @@ func TestTodosControllers(t *testing.T) {
 		compareResponseBodies(t, res, expectedBodyBytes)
 		compareResponseContentTypes(t, res, "application/json")
 	})
-	t.Run("Edit non-existing Todo", func(t *testing.T) {
+
+	t.Run("Edit non-existing Todo", func(t *testing.T) { //nolint: paralleltest
 		completedAt, err := time.Parse(time.DateTime, "2024-07-28 22:51:00")
 		if err != nil {
 			t.Errorf("failed parsing time: %v", err)
@@ -249,7 +258,8 @@ func TestTodosControllers(t *testing.T) {
 		compareResponseBodies(t, res, expectedBodyBytes)
 		compareResponseContentTypes(t, res, "application/json")
 	})
-	t.Run("Edit Todo with invalid body", func(t *testing.T) {
+
+	t.Run("Edit Todo with invalid body", func(t *testing.T) { //nolint: paralleltest
 		completedAt, err := time.Parse(time.DateTime, "2024-07-28 22:51:00")
 		if err != nil {
 			t.Errorf("failed parsing time: %v", err)
@@ -280,7 +290,8 @@ func TestTodosControllers(t *testing.T) {
 		compareResponseBodies(t, res, expectedBodyBytes)
 		compareResponseContentTypes(t, res, "application/json")
 	})
-	t.Run("Delete existing Todo", func(t *testing.T) {
+
+	t.Run("Delete existing Todo", func(t *testing.T) { //nolint: paralleltest
 		todoID := "62446c85-3798-471f-abb8-75c1cdd7153b"
 		req := httptest.NewRequest(http.MethodDelete, apiURLPrefix+"/todos/"+todoID, nil)
 		req.SetPathValue("id", todoID)
@@ -303,7 +314,8 @@ func TestTodosControllers(t *testing.T) {
 
 		compareResponseContentTypes(t, res, "application/json")
 	})
-	t.Run("Delete non-existing Todo", func(t *testing.T) {
+
+	t.Run("Delete non-existing Todo", func(t *testing.T) { //nolint: paralleltest
 		todoID := "d06c0dd1-d7ae-4ca7-8df4-86a6b62f349d"
 		req := httptest.NewRequest(http.MethodDelete, apiURLPrefix+"/todos/"+todoID, nil)
 		req.SetPathValue("id", todoID)

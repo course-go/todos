@@ -12,7 +12,9 @@ import (
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 )
 
-func TestRepository(t *testing.T) {
+func TestRepository(t *testing.T) { //nolint: tparallel
+	t.Parallel()
+
 	ctx := t.Context()
 	c := test.NewTestContainer(ctx, t)
 	t.Cleanup(func() {
@@ -41,7 +43,7 @@ func TestRepository(t *testing.T) {
 		t.Fatalf("could not parse time: %v", err)
 	}
 
-	t.Run("Create todo", func(t *testing.T) {
+	t.Run("Create todo", func(t *testing.T) { //nolint: paralleltest
 		t.Cleanup(func() {
 			test.RestoreDatabase(ctx, t, c)
 		})
@@ -69,7 +71,8 @@ func TestRepository(t *testing.T) {
 			)
 		}
 	})
-	t.Run("Get existing todo", func(t *testing.T) {
+
+	t.Run("Get existing todo", func(t *testing.T) { //nolint: paralleltest
 		t.Cleanup(func() {
 			test.RestoreDatabase(ctx, t, c)
 		})
@@ -94,7 +97,8 @@ func TestRepository(t *testing.T) {
 			)
 		}
 	})
-	t.Run("Get non-existing todo", func(t *testing.T) {
+
+	t.Run("Get non-existing todo", func(t *testing.T) { //nolint: paralleltest
 		t.Cleanup(func() {
 			test.RestoreDatabase(ctx, t, c)
 		})
@@ -111,7 +115,8 @@ func TestRepository(t *testing.T) {
 			t.Fatalf("todo should not be found: expected: %v != actual: %v", repository.ErrTodoNotFound, err)
 		}
 	})
-	t.Run("Get todos", func(t *testing.T) {
+
+	t.Run("Get todos", func(t *testing.T) { //nolint: paralleltest
 		t.Cleanup(func() {
 			test.RestoreDatabase(ctx, t, c)
 		})
@@ -131,7 +136,8 @@ func TestRepository(t *testing.T) {
 			)
 		}
 	})
-	t.Run("Save existing todo", func(t *testing.T) {
+
+	t.Run("Save existing todo", func(t *testing.T) { //nolint: paralleltest
 		t.Cleanup(func() {
 			test.RestoreDatabase(ctx, t, c)
 		})
@@ -170,7 +176,8 @@ func TestRepository(t *testing.T) {
 			)
 		}
 	})
-	t.Run("Save non-existing todo", func(t *testing.T) {
+
+	t.Run("Save non-existing todo", func(t *testing.T) { //nolint: paralleltest
 		t.Cleanup(func() {
 			test.RestoreDatabase(ctx, t, c)
 		})
@@ -193,7 +200,8 @@ func TestRepository(t *testing.T) {
 			t.Fatalf("todo should not be found: expected: %v != actual: %v", repository.ErrTodoNotFound, err)
 		}
 	})
-	t.Run("Delete existing todo", func(t *testing.T) {
+
+	t.Run("Delete existing todo", func(t *testing.T) { //nolint: paralleltest
 		t.Cleanup(func() {
 			test.RestoreDatabase(ctx, t, c)
 		})
@@ -210,7 +218,8 @@ func TestRepository(t *testing.T) {
 			t.Fatalf("todo should be deleted: expected: nil != actual: %v", err)
 		}
 	})
-	t.Run("Delete non-existing todo", func(t *testing.T) {
+
+	t.Run("Delete non-existing todo", func(t *testing.T) { //nolint: paralleltest
 		t.Cleanup(func() {
 			test.RestoreDatabase(ctx, t, c)
 		})

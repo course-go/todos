@@ -83,6 +83,7 @@ func newMetricProvider(t *testing.T) *metric.MeterProvider {
 
 func TestAPIValidateSchema(t *testing.T) {
 	t.Skip() // TODO: kin-openapi does not currently support OpenAPI v3.1
+	t.Parallel()
 
 	ctx := t.Context()
 
