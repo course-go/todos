@@ -10,7 +10,7 @@ import (
 func NotFound(w http.ResponseWriter, _ *http.Request) {
 	code := http.StatusNotFound
 	w.WriteHeader(code)
-	w.Write(responseErrorBytes(code))
+	_, _ = w.Write(responseErrorBytes(code))
 }
 
 func (a API) Health(w http.ResponseWriter, _ *http.Request) {
@@ -26,5 +26,5 @@ func (a API) Health(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusServiceUnavailable)
 	}
 
-	w.Write(reportBytes)
+	_, _ = w.Write(reportBytes)
 }

@@ -31,7 +31,7 @@ func (a API) GetTodos(w http.ResponseWriter, r *http.Request) {
 
 		code := http.StatusInternalServerError
 		w.WriteHeader(code)
-		w.Write(responseErrorBytes(code))
+		_, _ = w.Write(responseErrorBytes(code))
 
 		return
 	}
@@ -44,12 +44,12 @@ func (a API) GetTodos(w http.ResponseWriter, r *http.Request) {
 
 		code := http.StatusInternalServerError
 		w.WriteHeader(code)
-		w.Write(responseErrorBytes(code))
+		_, _ = w.Write(responseErrorBytes(code))
 
 		return
 	}
 
-	w.Write(bytes)
+	_, _ = w.Write(bytes)
 }
 
 func (a API) GetTodo(w http.ResponseWriter, r *http.Request) {
@@ -62,7 +62,7 @@ func (a API) GetTodo(w http.ResponseWriter, r *http.Request) {
 
 		code := http.StatusBadRequest
 		w.WriteHeader(code)
-		w.Write(responseErrorBytes(code))
+		_, _ = w.Write(responseErrorBytes(code))
 
 		return
 	}
@@ -76,7 +76,7 @@ func (a API) GetTodo(w http.ResponseWriter, r *http.Request) {
 
 		code := http.StatusNotFound
 		w.WriteHeader(code)
-		w.Write(responseErrorBytes(code))
+		_, _ = w.Write(responseErrorBytes(code))
 
 		return
 	}
@@ -88,7 +88,7 @@ func (a API) GetTodo(w http.ResponseWriter, r *http.Request) {
 
 		code := http.StatusInternalServerError
 		w.WriteHeader(code)
-		w.Write(responseErrorBytes(code))
+		_, _ = w.Write(responseErrorBytes(code))
 
 		return
 	}
@@ -101,12 +101,12 @@ func (a API) GetTodo(w http.ResponseWriter, r *http.Request) {
 
 		code := http.StatusInternalServerError
 		w.WriteHeader(code)
-		w.Write(responseErrorBytes(code))
+		_, _ = w.Write(responseErrorBytes(code))
 
 		return
 	}
 
-	w.Write(bytes)
+	_, _ = w.Write(bytes)
 }
 
 func (a API) CreateTodo(w http.ResponseWriter, r *http.Request) {
@@ -120,12 +120,14 @@ func (a API) CreateTodo(w http.ResponseWriter, r *http.Request) {
 
 		code := http.StatusInternalServerError
 		w.WriteHeader(code)
-		w.Write(responseErrorBytes(code))
+		_, _ = w.Write(responseErrorBytes(code))
 
 		return
 	}
 
-	defer body.Close()
+	defer func() {
+		_ = body.Close()
+	}()
 
 	var request CreateTodoRequest
 
@@ -137,7 +139,7 @@ func (a API) CreateTodo(w http.ResponseWriter, r *http.Request) {
 
 		code := http.StatusBadRequest
 		w.WriteHeader(code)
-		w.Write(responseErrorBytes(code))
+		_, _ = w.Write(responseErrorBytes(code))
 
 		return
 	}
@@ -150,7 +152,7 @@ func (a API) CreateTodo(w http.ResponseWriter, r *http.Request) {
 
 		code := http.StatusBadRequest
 		w.WriteHeader(code)
-		w.Write(responseErrorBytes(code))
+		_, _ = w.Write(responseErrorBytes(code))
 
 		return
 	}
@@ -168,7 +170,7 @@ func (a API) CreateTodo(w http.ResponseWriter, r *http.Request) {
 
 		code := http.StatusInternalServerError
 		w.WriteHeader(code)
-		w.Write(responseErrorBytes(code))
+		_, _ = w.Write(responseErrorBytes(code))
 
 		return
 	}
@@ -181,13 +183,13 @@ func (a API) CreateTodo(w http.ResponseWriter, r *http.Request) {
 
 		code := http.StatusInternalServerError
 		w.WriteHeader(code)
-		w.Write(responseErrorBytes(code))
+		_, _ = w.Write(responseErrorBytes(code))
 
 		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	w.Write(bytes)
+	_, _ = w.Write(bytes)
 }
 
 func (a API) UpdateTodo(w http.ResponseWriter, r *http.Request) {
@@ -200,7 +202,7 @@ func (a API) UpdateTodo(w http.ResponseWriter, r *http.Request) {
 
 		code := http.StatusBadRequest
 		w.WriteHeader(code)
-		w.Write(responseErrorBytes(code))
+		_, _ = w.Write(responseErrorBytes(code))
 
 		return
 	}
@@ -215,12 +217,14 @@ func (a API) UpdateTodo(w http.ResponseWriter, r *http.Request) {
 
 		code := http.StatusInternalServerError
 		w.WriteHeader(code)
-		w.Write(responseErrorBytes(code))
+		_, _ = w.Write(responseErrorBytes(code))
 
 		return
 	}
 
-	defer body.Close()
+	defer func() {
+		_ = body.Close()
+	}()
 
 	var request UpdateTodoRequest
 
@@ -232,7 +236,7 @@ func (a API) UpdateTodo(w http.ResponseWriter, r *http.Request) {
 
 		code := http.StatusBadRequest
 		w.WriteHeader(code)
-		w.Write(responseErrorBytes(code))
+		_, _ = w.Write(responseErrorBytes(code))
 
 		return
 	}
@@ -245,7 +249,7 @@ func (a API) UpdateTodo(w http.ResponseWriter, r *http.Request) {
 
 		code := http.StatusBadRequest
 		w.WriteHeader(code)
-		w.Write(responseErrorBytes(code))
+		_, _ = w.Write(responseErrorBytes(code))
 
 		return
 	}
@@ -267,7 +271,7 @@ func (a API) UpdateTodo(w http.ResponseWriter, r *http.Request) {
 
 		code := http.StatusNotFound
 		w.WriteHeader(code)
-		w.Write(responseErrorBytes(code))
+		_, _ = w.Write(responseErrorBytes(code))
 
 		return
 	}
@@ -280,7 +284,7 @@ func (a API) UpdateTodo(w http.ResponseWriter, r *http.Request) {
 
 		code := http.StatusInternalServerError
 		w.WriteHeader(code)
-		w.Write(responseErrorBytes(code))
+		_, _ = w.Write(responseErrorBytes(code))
 
 		return
 	}
@@ -293,13 +297,13 @@ func (a API) UpdateTodo(w http.ResponseWriter, r *http.Request) {
 
 		code := http.StatusInternalServerError
 		w.WriteHeader(code)
-		w.Write(responseErrorBytes(code))
+		_, _ = w.Write(responseErrorBytes(code))
 
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	w.Write(bytes)
+	_, _ = w.Write(bytes)
 }
 
 func (a API) DeleteTodo(w http.ResponseWriter, r *http.Request) {
@@ -312,7 +316,7 @@ func (a API) DeleteTodo(w http.ResponseWriter, r *http.Request) {
 
 		code := http.StatusBadRequest
 		w.WriteHeader(code)
-		w.Write(responseErrorBytes(code))
+		_, _ = w.Write(responseErrorBytes(code))
 
 		return
 	}
@@ -325,7 +329,7 @@ func (a API) DeleteTodo(w http.ResponseWriter, r *http.Request) {
 
 		code := http.StatusNotFound
 		w.WriteHeader(code)
-		w.Write(responseErrorBytes(code))
+		_, _ = w.Write(responseErrorBytes(code))
 
 		return
 	}
@@ -338,7 +342,7 @@ func (a API) DeleteTodo(w http.ResponseWriter, r *http.Request) {
 
 		code := http.StatusInternalServerError
 		w.WriteHeader(code)
-		w.Write(responseErrorBytes(code))
+		_, _ = w.Write(responseErrorBytes(code))
 
 		return
 	}
