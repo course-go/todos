@@ -1,9 +1,11 @@
-package config
+package config_test
 
 import (
 	"io"
 	"os"
 	"testing"
+
+	"github.com/course-go/todos/internal/config"
 )
 
 func TestConfig(t *testing.T) {
@@ -34,7 +36,7 @@ func TestConfig(t *testing.T) {
 		t.Fatalf("could not write to test config file: %v", err)
 	}
 
-	_, err = Parse(cfgPath)
+	_, err = config.Parse(cfgPath)
 	if err != nil {
 		t.Fatalf("could not parse config: %v", err)
 	}

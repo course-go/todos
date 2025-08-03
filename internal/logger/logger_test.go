@@ -1,10 +1,11 @@
-package logger
+package logger_test
 
 import (
 	"errors"
 	"testing"
 
 	"github.com/course-go/todos/internal/config"
+	"github.com/course-go/todos/internal/logger"
 )
 
 func TestLogger(t *testing.T) {
@@ -16,7 +17,7 @@ func TestLogger(t *testing.T) {
 			Level: "info",
 		}
 
-		_, err := New(cfg)
+		_, err := logger.New(cfg)
 		if err != nil {
 			t.Fatalf("could not create logger: expected: nil != actual: %v", err)
 		}
@@ -28,9 +29,9 @@ func TestLogger(t *testing.T) {
 			Level: "what-even-is-this",
 		}
 
-		_, err := New(cfg)
-		if !errors.Is(err, ErrUnknownLogLevel) {
-			t.Fatalf("logger should not be created: expected: %v != actual: %v", ErrUnknownLogLevel, err)
+		_, err := logger.New(cfg)
+		if !errors.Is(err, logger.ErrUnknownLogLevel) {
+			t.Fatalf("logger should not be created: expected: %v != actual: %v", logger.ErrUnknownLogLevel, err)
 		}
 	})
 }
