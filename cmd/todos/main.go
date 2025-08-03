@@ -5,7 +5,6 @@ import (
 	"flag"
 	"fmt"
 	"log/slog"
-	"net/http"
 	"os"
 	"time"
 
@@ -109,14 +108,7 @@ func main() {
 		config.Service.Host,
 		config.Service.Port,
 	)
-	server := &http.Server{
-		Addr:              hostname,
-		ReadTimeout:       1 * time.Second,
-		ReadHeaderTimeout: 2 * time.Second,
-		WriteTimeout:      1 * time.Second,
-		IdleTimeout:       30 * time.Second,
-		Handler:           mux,
-	}
+	server := controllers.NewServer(hostname, mux)
 
 	logger.Info("                                                     ")
 	logger.Info("    /$$$$$$$$              /$$                       ")
