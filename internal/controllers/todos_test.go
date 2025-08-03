@@ -52,7 +52,7 @@ func TestTodosControllers(t *testing.T) { //nolint: tparallel
 		   }
 		}`)
 		compareResponseBodies(t, res, expectedBodyBytes)
-		compareResponseContentTypes(t, res, "application/json")
+		assertJSONContentType(t, res)
 	})
 
 	t.Run("Get existing Todo", func(t *testing.T) { //nolint: paralleltest
@@ -77,7 +77,7 @@ func TestTodosControllers(t *testing.T) { //nolint: tparallel
 		   }
 		}`)
 		compareResponseBodies(t, res, expectedBodyBytes)
-		compareResponseContentTypes(t, res, "application/json")
+		assertJSONContentType(t, res)
 	})
 
 	t.Run("Get non-existing Todo", func(t *testing.T) { //nolint: paralleltest
@@ -94,7 +94,7 @@ func TestTodosControllers(t *testing.T) { //nolint: tparallel
 
 		expectedBodyBytes := []byte(`{"error":"Not Found"}`)
 		compareResponseBodies(t, res, expectedBodyBytes)
-		compareResponseContentTypes(t, res, "application/json")
+		assertJSONContentType(t, res)
 	})
 
 	t.Run("Create Todo", func(t *testing.T) { //nolint: paralleltest
@@ -158,7 +158,7 @@ func TestTodosControllers(t *testing.T) { //nolint: tparallel
 			)
 		}
 
-		compareResponseContentTypes(t, res, "application/json")
+		assertJSONContentType(t, res)
 	})
 
 	t.Run("Create Todo with invalid body", func(t *testing.T) { //nolint: paralleltest
@@ -180,7 +180,7 @@ func TestTodosControllers(t *testing.T) { //nolint: tparallel
 
 		expectedBodyBytes := []byte(`{"error":"Bad Request"}`)
 		compareResponseBodies(t, res, expectedBodyBytes)
-		compareResponseContentTypes(t, res, "application/json")
+		assertJSONContentType(t, res)
 	})
 
 	t.Run("Edit existing Todo", func(t *testing.T) { //nolint: paralleltest
@@ -223,7 +223,7 @@ func TestTodosControllers(t *testing.T) { //nolint: tparallel
 		   }
 		}`)
 		compareResponseBodies(t, res, expectedBodyBytes)
-		compareResponseContentTypes(t, res, "application/json")
+		assertJSONContentType(t, res)
 	})
 
 	t.Run("Edit non-existing Todo", func(t *testing.T) { //nolint: paralleltest
@@ -256,7 +256,7 @@ func TestTodosControllers(t *testing.T) { //nolint: tparallel
 
 		expectedBodyBytes := []byte(`{"error":"Not Found"}`)
 		compareResponseBodies(t, res, expectedBodyBytes)
-		compareResponseContentTypes(t, res, "application/json")
+		assertJSONContentType(t, res)
 	})
 
 	t.Run("Edit Todo with invalid body", func(t *testing.T) { //nolint: paralleltest
@@ -288,7 +288,7 @@ func TestTodosControllers(t *testing.T) { //nolint: tparallel
 
 		expectedBodyBytes := []byte(`{"error":"Bad Request"}`)
 		compareResponseBodies(t, res, expectedBodyBytes)
-		compareResponseContentTypes(t, res, "application/json")
+		assertJSONContentType(t, res)
 	})
 
 	t.Run("Delete existing Todo", func(t *testing.T) { //nolint: paralleltest
@@ -312,7 +312,7 @@ func TestTodosControllers(t *testing.T) { //nolint: tparallel
 			t.Errorf("expected no bytes in body but was %d", len(actualBody))
 		}
 
-		compareResponseContentTypes(t, res, "application/json")
+		assertJSONContentType(t, res)
 	})
 
 	t.Run("Delete non-existing Todo", func(t *testing.T) { //nolint: paralleltest
@@ -329,7 +329,7 @@ func TestTodosControllers(t *testing.T) { //nolint: tparallel
 
 		expectedBodyBytes := []byte(`{"error":"Not Found"}`)
 		compareResponseBodies(t, res, expectedBodyBytes)
-		compareResponseContentTypes(t, res, "application/json")
+		assertJSONContentType(t, res)
 	})
 }
 
@@ -371,10 +371,12 @@ func compareResponseBodies(t *testing.T, res *http.Response, expectedBody []byte
 	}
 }
 
-func compareResponseContentTypes(t *testing.T, res *http.Response, expectedType string) {
+func assertJSONContentType(t *testing.T, res *http.Response) {
 	t.Helper()
 
+	expectedType := "application/json"
 	actualType := res.Header.Get("Content-Type")
+
 	if expectedType != actualType {
 		t.Errorf("expected %s content type but was %s", expectedType, actualType)
 	}
