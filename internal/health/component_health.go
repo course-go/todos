@@ -5,5 +5,5 @@ import "time"
 type ComponentHealth struct {
 	Health    Health    `json:"health"`
 	Message   string    `json:"message,omitempty"`
-	UpdatedAt time.Time `json:"updatedAt,omitempty"`
+	UpdatedAt time.Time `json:"updatedAt,omitzero"`
 }
