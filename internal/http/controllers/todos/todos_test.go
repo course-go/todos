@@ -150,7 +150,7 @@ func TestTodosControllers(t *testing.T) { //nolint: cyclop, maintidx, tparallel
 		// The UUIDs that todos use are automatically generated so they are ignored.
 		// They could be faked similarly like time, but was not worth the effort.
 		ignoreIDs := cmpopts.IgnoreMapEntries(
-			func(key string, value any) bool {
+			func(key string, _ any) bool {
 				return key == "id"
 			},
 		)
