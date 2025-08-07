@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/course-go/todos/internal/controllers/metrics"
+	"github.com/course-go/todos/internal/http/metrics"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
 )

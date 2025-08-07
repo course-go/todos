@@ -1,4 +1,4 @@
-package controllers_test
+package todos_test
 
 import (
 	"bytes"
@@ -9,7 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/course-go/todos/internal/controllers"
+	"github.com/course-go/todos/internal/http/dto/request"
+	"github.com/course-go/todos/internal/http/dto/response"
 	"github.com/course-go/todos/internal/utils/test"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
@@ -22,7 +23,7 @@ func TestTodosControllers(t *testing.T) { //nolint: cyclop, maintidx, tparallel
 
 	ctx := t.Context()
 	logger := test.NewTestLogger(t)
-	r := newTestRouter(ctx, t, logger)
+	r := test.NewTestRouter(ctx, t, logger)
 
 	playGamesTodoID := "62446c85-3798-471f-abb8-75c1cdd7153b"
 
@@ -99,7 +100,7 @@ func TestTodosControllers(t *testing.T) { //nolint: cyclop, maintidx, tparallel
 	})
 
 	t.Run("Create Todo", func(t *testing.T) { //nolint: paralleltest
-		body := controllers.CreateTodoRequest{
+		body := request.CreateTodoRequest{
 			Description: "Play some games",
 		}
 
@@ -127,7 +128,7 @@ func TestTodosControllers(t *testing.T) { //nolint: cyclop, maintidx, tparallel
 		   }
 		}`)
 
-		var expectedResponseBody controllers.Response
+		var expectedResponseBody response.Response
 
 		err = json.Unmarshal(expectedBodyBytes, &expectedResponseBody)
 		if err != nil {
@@ -139,7 +140,7 @@ func TestTodosControllers(t *testing.T) { //nolint: cyclop, maintidx, tparallel
 			t.Errorf("could not read body bytes: %v", err)
 		}
 
-		var actualResponseBody controllers.Response
+		var actualResponseBody response.Response
 
 		err = json.Unmarshal(actualBodyBytes, &actualResponseBody)
 		if err != nil {
@@ -163,7 +164,7 @@ func TestTodosControllers(t *testing.T) { //nolint: cyclop, maintidx, tparallel
 	})
 
 	t.Run("Create Todo with invalid body", func(t *testing.T) { //nolint: paralleltest
-		body := controllers.CreateTodoRequest{}
+		body := request.CreateTodoRequest{}
 
 		actualBodyBytes, err := json.Marshal(&body)
 		if err != nil {
@@ -190,7 +191,7 @@ func TestTodosControllers(t *testing.T) { //nolint: cyclop, maintidx, tparallel
 			t.Errorf("failed parsing time: %v", err)
 		}
 
-		body := controllers.UpdateTodoRequest{
+		body := request.UpdateTodoRequest{
 			Description: "Play some games",
 			CompletedAt: &completedAt,
 		}
@@ -232,7 +233,7 @@ func TestTodosControllers(t *testing.T) { //nolint: cyclop, maintidx, tparallel
 			t.Errorf("failed parsing time: %v", err)
 		}
 
-		body := controllers.UpdateTodoRequest{
+		body := request.UpdateTodoRequest{
 			Description: "Play some games",
 			CompletedAt: &completedAt,
 		}
@@ -265,7 +266,7 @@ func TestTodosControllers(t *testing.T) { //nolint: cyclop, maintidx, tparallel
 			t.Errorf("failed parsing time: %v", err)
 		}
 
-		body := controllers.UpdateTodoRequest{
+		body := request.UpdateTodoRequest{
 			CompletedAt: &completedAt,
 		}
 
@@ -348,14 +349,14 @@ func compareResponseBodies(t *testing.T, res *http.Response, expectedBody []byte
 		t.Errorf("could not read body bytes: %v", err)
 	}
 
-	var expectedResponseBody controllers.Response
+	var expectedResponseBody response.Response
 
 	err = json.Unmarshal(expectedBody, &expectedResponseBody)
 	if err != nil {
 		t.Errorf("could not unmarshal expected body bytes: %v", err)
 	}
 
-	var actualResponseBody controllers.Response
+	var actualResponseBody response.Response
 
 	err = json.Unmarshal(actualBody, &actualResponseBody)
 	if err != nil {

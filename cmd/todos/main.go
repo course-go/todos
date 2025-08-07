@@ -9,11 +9,15 @@ import (
 	"time"
 
 	"github.com/course-go/todos/internal/config"
-	"github.com/course-go/todos/internal/controllers"
 	"github.com/course-go/todos/internal/health"
+	"github.com/course-go/todos/internal/http"
+	chealth "github.com/course-go/todos/internal/http/controllers/health"
+	ctodos "github.com/course-go/todos/internal/http/controllers/todos"
+	"github.com/course-go/todos/internal/http/metrics"
 	"github.com/course-go/todos/internal/logger"
 	"github.com/course-go/todos/internal/repository"
 	ttime "github.com/course-go/todos/internal/time"
+	"github.com/go-playground/validator/v10"
 	"go.opentelemetry.io/otel/exporters/prometheus"
 	"go.opentelemetry.io/otel/sdk/metric"
 )
@@ -96,9 +100,9 @@ func main() { //nolint: cyclop
 
 	provider := metric.NewMeterProvider(metric.WithReader(exporter))
 
-	mux, err := controllers.NewAPIRouter(logger, config, provider, ttime.Now(), registry, repo)
+	metrics, err := metrics.New(provider)
 	if err != nil {
-		logger.Error("failed creating API router",
+		logger.Error("failed creating http metrics",
 			"error", err,
 		)
 		os.Exit(1)
@@ -108,7 +112,17 @@ func main() { //nolint: cyclop
 		config.Service.Host,
 		config.Service.Port,
 	)
-	server := controllers.NewServer(hostname, mux)
+	validator := validator.New(validator.WithRequiredStructEnabled())
+	todos := ctodos.NewTodosController(validator, repo, ttime.Now())
+	health := chealth.NewHealthController(registry)
+
+	server, err := http.NewServer(logger, metrics, hostname, health, todos)
+	if err != nil {
+		logger.Error("failed creating API router",
+			"error", err,
+		)
+		os.Exit(1)
+	}
 
 	logger.Info("                                                     ")
 	logger.Info("    /$$$$$$$$              /$$                       ")

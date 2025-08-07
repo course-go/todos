@@ -6,21 +6,6 @@ import (
 	"sync"
 )
 
-type Health string
-
-const (
-	OK    Health = "OK"
-	WARN  Health = "WARN"
-	ERROR Health = "ERROR"
-)
-
-type Report struct {
-	Service    string                     `json:"service"`
-	Version    string                     `json:"version"`
-	Health     Health                     `json:"health"`
-	Components map[string]ComponentHealth `json:"components,omitempty"`
-}
-
 type Registry struct {
 	service string
 	version string

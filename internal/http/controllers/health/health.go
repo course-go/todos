@@ -1,4 +1,4 @@
-package controllers
+package health
 
 import (
 	"encoding/json"
@@ -7,14 +7,18 @@ import (
 	"github.com/course-go/todos/internal/health"
 )
 
-func NotFound(w http.ResponseWriter, _ *http.Request) {
-	code := http.StatusNotFound
-	w.WriteHeader(code)
-	_, _ = w.Write(responseErrorBytes(code))
+type HealthController struct {
+	registry *health.Registry
 }
 
-func (a API) Health(w http.ResponseWriter, _ *http.Request) {
-	report := a.registry.Report()
+func NewHealthController(registry *health.Registry) *HealthController {
+	return &HealthController{
+		registry: registry,
+	}
+}
+
+func (hc *HealthController) GetHealthController(w http.ResponseWriter, _ *http.Request) {
+	report := hc.registry.Report()
 
 	reportBytes, err := json.Marshal(report)
 	if err != nil {

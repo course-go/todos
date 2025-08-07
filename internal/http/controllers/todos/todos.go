@@ -1,4 +1,4 @@
-package controllers
+package todos
 
 import (
 	"encoding/json"
@@ -6,24 +6,36 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
-	"time"
 
+	"github.com/course-go/todos/internal/http/dto/request"
+	"github.com/course-go/todos/internal/http/dto/response"
 	"github.com/course-go/todos/internal/repository"
+	"github.com/course-go/todos/internal/time"
 	"github.com/course-go/todos/internal/todos"
+	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 )
 
-type CreateTodoRequest struct {
-	Description string `json:"description" validate:"required"`
+type TodosController struct {
+	validator  *validator.Validate
+	repository *repository.Repository
+	time       time.Factory
 }
 
-type UpdateTodoRequest struct {
-	Description string     `json:"description" validate:"required"`
-	CompletedAt *time.Time `json:"completedAt"`
+func NewTodosController(
+	validator *validator.Validate,
+	repository *repository.Repository,
+	time time.Factory,
+) *TodosController {
+	return &TodosController{
+		validator:  validator,
+		repository: repository,
+		time:       time,
+	}
 }
 
-func (a API) GetTodos(w http.ResponseWriter, r *http.Request) {
-	todos, err := a.repository.GetTodos(r.Context())
+func (tc *TodosController) GetTodos(w http.ResponseWriter, r *http.Request) {
+	todos, err := tc.repository.GetTodos(r.Context())
 	if err != nil {
 		slog.Error("failed retrieving todos",
 			"error", err,
@@ -31,12 +43,12 @@ func (a API) GetTodos(w http.ResponseWriter, r *http.Request) {
 
 		code := http.StatusInternalServerError
 		w.WriteHeader(code)
-		_, _ = w.Write(responseErrorBytes(code))
+		_, _ = w.Write(response.ErrorBytes(code))
 
 		return
 	}
 
-	bytes, err := responseDataBytes("todos", todos)
+	bytes, err := response.DataBytes("todos", todos)
 	if err != nil {
 		slog.Error("failed constructing response",
 			"error", err,
@@ -44,7 +56,7 @@ func (a API) GetTodos(w http.ResponseWriter, r *http.Request) {
 
 		code := http.StatusInternalServerError
 		w.WriteHeader(code)
-		_, _ = w.Write(responseErrorBytes(code))
+		_, _ = w.Write(response.ErrorBytes(code))
 
 		return
 	}
@@ -52,7 +64,7 @@ func (a API) GetTodos(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(bytes)
 }
 
-func (a API) GetTodo(w http.ResponseWriter, r *http.Request) {
+func (tc *TodosController) GetTodo(w http.ResponseWriter, r *http.Request) {
 	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		slog.Error("failed parsing uuid",
@@ -62,12 +74,12 @@ func (a API) GetTodo(w http.ResponseWriter, r *http.Request) {
 
 		code := http.StatusBadRequest
 		w.WriteHeader(code)
-		_, _ = w.Write(responseErrorBytes(code))
+		_, _ = w.Write(response.ErrorBytes(code))
 
 		return
 	}
 
-	todo, err := a.repository.GetTodo(r.Context(), id)
+	todo, err := tc.repository.GetTodo(r.Context(), id)
 	if errors.Is(err, repository.ErrTodoNotFound) {
 		slog.Error("todo with given id does not exist",
 			"error", err,
@@ -76,7 +88,7 @@ func (a API) GetTodo(w http.ResponseWriter, r *http.Request) {
 
 		code := http.StatusNotFound
 		w.WriteHeader(code)
-		_, _ = w.Write(responseErrorBytes(code))
+		_, _ = w.Write(response.ErrorBytes(code))
 
 		return
 	}
@@ -88,12 +100,12 @@ func (a API) GetTodo(w http.ResponseWriter, r *http.Request) {
 
 		code := http.StatusInternalServerError
 		w.WriteHeader(code)
-		_, _ = w.Write(responseErrorBytes(code))
+		_, _ = w.Write(response.ErrorBytes(code))
 
 		return
 	}
 
-	bytes, err := responseDataBytes("todo", todo)
+	bytes, err := response.DataBytes("todo", todo)
 	if err != nil {
 		slog.Error("failed constructing response",
 			"error", err,
@@ -101,7 +113,7 @@ func (a API) GetTodo(w http.ResponseWriter, r *http.Request) {
 
 		code := http.StatusInternalServerError
 		w.WriteHeader(code)
-		_, _ = w.Write(responseErrorBytes(code))
+		_, _ = w.Write(response.ErrorBytes(code))
 
 		return
 	}
@@ -109,7 +121,7 @@ func (a API) GetTodo(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(bytes)
 }
 
-func (a API) CreateTodo(w http.ResponseWriter, r *http.Request) {
+func (tc *TodosController) CreateTodo(w http.ResponseWriter, r *http.Request) {
 	body := r.Body
 
 	bodyBytes, err := io.ReadAll(body)
@@ -120,7 +132,7 @@ func (a API) CreateTodo(w http.ResponseWriter, r *http.Request) {
 
 		code := http.StatusInternalServerError
 		w.WriteHeader(code)
-		_, _ = w.Write(responseErrorBytes(code))
+		_, _ = w.Write(response.ErrorBytes(code))
 
 		return
 	}
@@ -129,9 +141,9 @@ func (a API) CreateTodo(w http.ResponseWriter, r *http.Request) {
 		_ = body.Close()
 	}()
 
-	var request CreateTodoRequest
+	var req request.CreateTodoRequest
 
-	err = json.Unmarshal(bodyBytes, &request)
+	err = json.Unmarshal(bodyBytes, &req)
 	if err != nil {
 		slog.Error("failed binding request body",
 			"error", err,
@@ -139,12 +151,12 @@ func (a API) CreateTodo(w http.ResponseWriter, r *http.Request) {
 
 		code := http.StatusBadRequest
 		w.WriteHeader(code)
-		_, _ = w.Write(responseErrorBytes(code))
+		_, _ = w.Write(response.ErrorBytes(code))
 
 		return
 	}
 
-	err = a.validator.Struct(request)
+	err = tc.validator.Struct(req)
 	if err != nil {
 		slog.Warn("failed validating request body",
 			"error", err,
@@ -152,17 +164,17 @@ func (a API) CreateTodo(w http.ResponseWriter, r *http.Request) {
 
 		code := http.StatusBadRequest
 		w.WriteHeader(code)
-		_, _ = w.Write(responseErrorBytes(code))
+		_, _ = w.Write(response.ErrorBytes(code))
 
 		return
 	}
 
 	todo := todos.Todo{
-		Description: request.Description,
-		CreatedAt:   a.time(),
+		Description: req.Description,
+		CreatedAt:   tc.time(),
 	}
 
-	todo, err = a.repository.CreateTodo(r.Context(), todo)
+	todo, err = tc.repository.CreateTodo(r.Context(), todo)
 	if err != nil {
 		slog.Error("failed creating todo",
 			"error", err,
@@ -170,12 +182,12 @@ func (a API) CreateTodo(w http.ResponseWriter, r *http.Request) {
 
 		code := http.StatusInternalServerError
 		w.WriteHeader(code)
-		_, _ = w.Write(responseErrorBytes(code))
+		_, _ = w.Write(response.ErrorBytes(code))
 
 		return
 	}
 
-	bytes, err := responseDataBytes("todo", todo)
+	bytes, err := response.DataBytes("todo", todo)
 	if err != nil {
 		slog.Error("failed constructing response",
 			"error", err,
@@ -183,7 +195,7 @@ func (a API) CreateTodo(w http.ResponseWriter, r *http.Request) {
 
 		code := http.StatusInternalServerError
 		w.WriteHeader(code)
-		_, _ = w.Write(responseErrorBytes(code))
+		_, _ = w.Write(response.ErrorBytes(code))
 
 		return
 	}
@@ -192,7 +204,7 @@ func (a API) CreateTodo(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(bytes)
 }
 
-func (a API) UpdateTodo(w http.ResponseWriter, r *http.Request) {
+func (tc *TodosController) UpdateTodo(w http.ResponseWriter, r *http.Request) {
 	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		slog.Error("failed parsing uuid",
@@ -202,7 +214,7 @@ func (a API) UpdateTodo(w http.ResponseWriter, r *http.Request) {
 
 		code := http.StatusBadRequest
 		w.WriteHeader(code)
-		_, _ = w.Write(responseErrorBytes(code))
+		_, _ = w.Write(response.ErrorBytes(code))
 
 		return
 	}
@@ -217,7 +229,7 @@ func (a API) UpdateTodo(w http.ResponseWriter, r *http.Request) {
 
 		code := http.StatusInternalServerError
 		w.WriteHeader(code)
-		_, _ = w.Write(responseErrorBytes(code))
+		_, _ = w.Write(response.ErrorBytes(code))
 
 		return
 	}
@@ -226,9 +238,9 @@ func (a API) UpdateTodo(w http.ResponseWriter, r *http.Request) {
 		_ = body.Close()
 	}()
 
-	var request UpdateTodoRequest
+	var req request.UpdateTodoRequest
 
-	err = json.Unmarshal(bodyBytes, &request)
+	err = json.Unmarshal(bodyBytes, &req)
 	if err != nil {
 		slog.Error("failed binding request body",
 			"error", err,
@@ -236,12 +248,12 @@ func (a API) UpdateTodo(w http.ResponseWriter, r *http.Request) {
 
 		code := http.StatusBadRequest
 		w.WriteHeader(code)
-		_, _ = w.Write(responseErrorBytes(code))
+		_, _ = w.Write(response.ErrorBytes(code))
 
 		return
 	}
 
-	err = a.validator.Struct(request)
+	err = tc.validator.Struct(req)
 	if err != nil {
 		slog.Warn("failed validating request body",
 			"error", err,
@@ -249,20 +261,20 @@ func (a API) UpdateTodo(w http.ResponseWriter, r *http.Request) {
 
 		code := http.StatusBadRequest
 		w.WriteHeader(code)
-		_, _ = w.Write(responseErrorBytes(code))
+		_, _ = w.Write(response.ErrorBytes(code))
 
 		return
 	}
 
-	now := a.time()
+	now := tc.time()
 	todo := todos.Todo{
 		ID:          id,
-		Description: request.Description,
-		CompletedAt: request.CompletedAt,
+		Description: req.Description,
+		CompletedAt: req.CompletedAt,
 		UpdatedAt:   &now,
 	}
 
-	todo, err = a.repository.SaveTodo(r.Context(), todo)
+	todo, err = tc.repository.SaveTodo(r.Context(), todo)
 	if errors.Is(err, repository.ErrTodoNotFound) {
 		slog.Warn("failed saving todo",
 			"error", err,
@@ -271,7 +283,7 @@ func (a API) UpdateTodo(w http.ResponseWriter, r *http.Request) {
 
 		code := http.StatusNotFound
 		w.WriteHeader(code)
-		_, _ = w.Write(responseErrorBytes(code))
+		_, _ = w.Write(response.ErrorBytes(code))
 
 		return
 	}
@@ -284,12 +296,12 @@ func (a API) UpdateTodo(w http.ResponseWriter, r *http.Request) {
 
 		code := http.StatusInternalServerError
 		w.WriteHeader(code)
-		_, _ = w.Write(responseErrorBytes(code))
+		_, _ = w.Write(response.ErrorBytes(code))
 
 		return
 	}
 
-	bytes, err := responseDataBytes("todo", todo)
+	bytes, err := response.DataBytes("todo", todo)
 	if err != nil {
 		slog.Error("failed constructing response",
 			"error", err,
@@ -297,7 +309,7 @@ func (a API) UpdateTodo(w http.ResponseWriter, r *http.Request) {
 
 		code := http.StatusInternalServerError
 		w.WriteHeader(code)
-		_, _ = w.Write(responseErrorBytes(code))
+		_, _ = w.Write(response.ErrorBytes(code))
 
 		return
 	}
@@ -306,7 +318,7 @@ func (a API) UpdateTodo(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(bytes)
 }
 
-func (a API) DeleteTodo(w http.ResponseWriter, r *http.Request) {
+func (tc *TodosController) DeleteTodo(w http.ResponseWriter, r *http.Request) {
 	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		slog.Error("failed parsing uuid",
@@ -316,12 +328,12 @@ func (a API) DeleteTodo(w http.ResponseWriter, r *http.Request) {
 
 		code := http.StatusBadRequest
 		w.WriteHeader(code)
-		_, _ = w.Write(responseErrorBytes(code))
+		_, _ = w.Write(response.ErrorBytes(code))
 
 		return
 	}
 
-	err = a.repository.DeleteTodo(r.Context(), id, a.time())
+	err = tc.repository.DeleteTodo(r.Context(), id, tc.time())
 	if errors.Is(err, repository.ErrTodoNotFound) {
 		slog.Debug("no matching id for todo",
 			"id", id,
@@ -329,7 +341,7 @@ func (a API) DeleteTodo(w http.ResponseWriter, r *http.Request) {
 
 		code := http.StatusNotFound
 		w.WriteHeader(code)
-		_, _ = w.Write(responseErrorBytes(code))
+		_, _ = w.Write(response.ErrorBytes(code))
 
 		return
 	}
@@ -342,7 +354,7 @@ func (a API) DeleteTodo(w http.ResponseWriter, r *http.Request) {
 
 		code := http.StatusInternalServerError
 		w.WriteHeader(code)
-		_, _ = w.Write(responseErrorBytes(code))
+		_, _ = w.Write(response.ErrorBytes(code))
 
 		return
 	}

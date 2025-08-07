@@ -50,9 +50,3 @@ func (c *Component) Report() ComponentHealth {
 		UpdatedAt: c.UpdatedAt,
 	}
 }
-
-type ComponentHealth struct {
-	Health    Health    `json:"health"`
-	Message   string    `json:"message,omitempty"`
-	UpdatedAt time.Time `json:"updatedAt,omitempty"`
-}
