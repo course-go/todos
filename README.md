@@ -12,7 +12,7 @@ Sample Todos web application.
 
 This project uses:
 
-- [net/http](https://pkg.go.dev/net/http) for routing
+- [chi](https://github.com/go-chi/chi/) for routing
 - [go-playground/validator](https://github.com/go-playground/validator) for input validation
 - [pgx](https://github.com/jackc/pgx) for database access
 - [migrate](https://github.com/jackc/pgx) for managing database migrations

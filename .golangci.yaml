@@ -28,6 +28,7 @@ linters:
           allow:
             - $gostd
             - github.com/course-go/todos
+            - github.com/go-chi/chi/v5
             - github.com/testcontainers/testcontainers-go
             - github.com/google/uuid
             - github.com/jackc/pgx/v5
