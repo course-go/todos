@@ -52,8 +52,8 @@ func NewTestRouter(ctx context.Context, t *testing.T, logger *slog.Logger) http.
 		t.Fatalf("failed creating health registry: %v", err)
 	}
 
-	tc := ctodos.NewTodosController(validator.New(validator.WithRequiredStructEnabled()), r, NewTimeNow(t))
-	hc := chealth.NewHealthController(h)
+	tc := ctodos.NewController(validator.New(validator.WithRequiredStructEnabled()), r, NewTimeNow(t))
+	hc := chealth.NewController(h)
 
 	server, err := thttp.NewServer(logger, m, "testing", hc, tc)
 	if err != nil {

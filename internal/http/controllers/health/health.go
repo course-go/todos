@@ -7,18 +7,18 @@ import (
 	"github.com/course-go/todos/internal/health"
 )
 
-type HealthController struct {
+type Controller struct {
 	registry *health.Registry
 }
 
-func NewHealthController(registry *health.Registry) *HealthController {
-	return &HealthController{
+func NewController(registry *health.Registry) *Controller {
+	return &Controller{
 		registry: registry,
 	}
 }
 
-func (hc *HealthController) GetHealthController(w http.ResponseWriter, _ *http.Request) {
-	report := hc.registry.Report()
+func (c *Controller) GetHealthController(w http.ResponseWriter, _ *http.Request) {
+	report := c.registry.Report()
 
 	reportBytes, err := json.Marshal(report)
 	if err != nil {

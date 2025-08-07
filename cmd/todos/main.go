@@ -111,8 +111,8 @@ func main() { //nolint: cyclop
 
 	hostname := net.JoinHostPort(config.Service.Host, config.Service.Port)
 	validator := validator.New(validator.WithRequiredStructEnabled())
-	todos := ctodos.NewTodosController(validator, repo, ttime.Now())
-	health := chealth.NewHealthController(registry)
+	todos := ctodos.NewController(validator, repo, ttime.Now())
+	health := chealth.NewController(registry)
 
 	server, err := http.NewServer(logger, metrics, hostname, health, todos)
 	if err != nil {

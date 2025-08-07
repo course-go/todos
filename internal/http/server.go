@@ -23,8 +23,8 @@ func NewServer(
 	logger *slog.Logger,
 	metrics *metrics.Metrics,
 	hostname string,
-	healthController *health.HealthController,
-	todosController *todos.TodosController,
+	hc *health.Controller,
+	tc *todos.Controller,
 ) (server *http.Server, err error) {
 	commonMiddleware := []middleware.Middleware{
 		middleware.Logging(logger),
@@ -44,14 +44,14 @@ func NewServer(
 	mux.Route("/api/v1", func(r chi.Router) {
 		r.Use(jsonMiddleware...)
 		r.Route("/healthz", func(r chi.Router) {
-			r.Get("/", healthController.GetHealthController)
+			r.Get("/", hc.GetHealthController)
 		})
 		r.Route("/todos", func(r chi.Router) {
-			r.Get("/", todosController.GetTodos)
-			r.Get("/{id}", todosController.GetTodo)
-			r.Post("/", todosController.CreateTodo)
-			r.Put("/{id}", todosController.UpdateTodo)
-			r.Delete("/{id}", todosController.DeleteTodo)
+			r.Get("/", tc.GetTodosController)
+			r.Get("/{id}", tc.GetTodoController)
+			r.Post("/", tc.CreateTodoController)
+			r.Put("/{id}", tc.UpdateTodoController)
+			r.Delete("/{id}", tc.DeleteTodoController)
 		})
 	})
 

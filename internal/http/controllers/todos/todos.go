@@ -16,26 +16,26 @@ import (
 	"github.com/google/uuid"
 )
 
-type TodosController struct {
+type Controller struct {
 	validator  *validator.Validate
 	repository *repository.Repository
 	time       time.Factory
 }
 
-func NewTodosController(
+func NewController(
 	validator *validator.Validate,
 	repository *repository.Repository,
 	time time.Factory,
-) *TodosController {
-	return &TodosController{
+) *Controller {
+	return &Controller{
 		validator:  validator,
 		repository: repository,
 		time:       time,
 	}
 }
 
-func (tc *TodosController) GetTodos(w http.ResponseWriter, r *http.Request) {
-	todos, err := tc.repository.GetTodos(r.Context())
+func (c *Controller) GetTodosController(w http.ResponseWriter, r *http.Request) {
+	todos, err := c.repository.GetTodos(r.Context())
 	if err != nil {
 		slog.Error("failed retrieving todos",
 			"error", err,
@@ -64,7 +64,7 @@ func (tc *TodosController) GetTodos(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(bytes)
 }
 
-func (tc *TodosController) GetTodo(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) GetTodoController(w http.ResponseWriter, r *http.Request) {
 	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		slog.Error("failed parsing uuid",
@@ -79,7 +79,7 @@ func (tc *TodosController) GetTodo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	todo, err := tc.repository.GetTodo(r.Context(), id)
+	todo, err := c.repository.GetTodo(r.Context(), id)
 	if errors.Is(err, repository.ErrTodoNotFound) {
 		slog.Error("todo with given id does not exist",
 			"error", err,
@@ -121,7 +121,7 @@ func (tc *TodosController) GetTodo(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(bytes)
 }
 
-func (tc *TodosController) CreateTodo(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) CreateTodoController(w http.ResponseWriter, r *http.Request) {
 	body := r.Body
 
 	bodyBytes, err := io.ReadAll(body)
@@ -156,7 +156,7 @@ func (tc *TodosController) CreateTodo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = tc.validator.Struct(req)
+	err = c.validator.Struct(req)
 	if err != nil {
 		slog.Warn("failed validating request body",
 			"error", err,
@@ -171,10 +171,10 @@ func (tc *TodosController) CreateTodo(w http.ResponseWriter, r *http.Request) {
 
 	todo := todos.Todo{
 		Description: req.Description,
-		CreatedAt:   tc.time(),
+		CreatedAt:   c.time(),
 	}
 
-	todo, err = tc.repository.CreateTodo(r.Context(), todo)
+	todo, err = c.repository.CreateTodo(r.Context(), todo)
 	if err != nil {
 		slog.Error("failed creating todo",
 			"error", err,
@@ -204,7 +204,7 @@ func (tc *TodosController) CreateTodo(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(bytes)
 }
 
-func (tc *TodosController) UpdateTodo(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) UpdateTodoController(w http.ResponseWriter, r *http.Request) {
 	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		slog.Error("failed parsing uuid",
@@ -253,7 +253,7 @@ func (tc *TodosController) UpdateTodo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = tc.validator.Struct(req)
+	err = c.validator.Struct(req)
 	if err != nil {
 		slog.Warn("failed validating request body",
 			"error", err,
@@ -266,7 +266,7 @@ func (tc *TodosController) UpdateTodo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	now := tc.time()
+	now := c.time()
 	todo := todos.Todo{
 		ID:          id,
 		Description: req.Description,
@@ -274,7 +274,7 @@ func (tc *TodosController) UpdateTodo(w http.ResponseWriter, r *http.Request) {
 		UpdatedAt:   &now,
 	}
 
-	todo, err = tc.repository.SaveTodo(r.Context(), todo)
+	todo, err = c.repository.SaveTodo(r.Context(), todo)
 	if errors.Is(err, repository.ErrTodoNotFound) {
 		slog.Warn("failed saving todo",
 			"error", err,
@@ -318,7 +318,7 @@ func (tc *TodosController) UpdateTodo(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(bytes)
 }
 
-func (tc *TodosController) DeleteTodo(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) DeleteTodoController(w http.ResponseWriter, r *http.Request) {
 	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		slog.Error("failed parsing uuid",
@@ -333,7 +333,7 @@ func (tc *TodosController) DeleteTodo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = tc.repository.DeleteTodo(r.Context(), id, tc.time())
+	err = c.repository.DeleteTodo(r.Context(), id, c.time())
 	if errors.Is(err, repository.ErrTodoNotFound) {
 		slog.Debug("no matching id for todo",
 			"id", id,
