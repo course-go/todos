@@ -4,6 +4,7 @@ go 1.24.0
 
 require (
 	github.com/getkin/kin-openapi v0.131.0
+	github.com/go-chi/chi/v5 v5.2.2
 	github.com/go-playground/validator/v10 v10.23.0
 	github.com/golang-migrate/migrate/v4 v4.18.1
 	github.com/google/go-cmp v0.7.0
