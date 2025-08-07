@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"log/slog"
+	"net"
 	"os"
 	"time"
 
@@ -108,10 +109,7 @@ func main() { //nolint: cyclop
 		os.Exit(1)
 	}
 
-	hostname := fmt.Sprintf("%s:%s",
-		config.Service.Host,
-		config.Service.Port,
-	)
+	hostname := net.JoinHostPort(config.Service.Host, config.Service.Port)
 	validator := validator.New(validator.WithRequiredStructEnabled())
 	todos := ctodos.NewTodosController(validator, repo, ttime.Now())
 	health := chealth.NewHealthController(registry)
