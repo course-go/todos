@@ -17,17 +17,20 @@ import (
 )
 
 type Controller struct {
+	logger     *slog.Logger
 	validator  *validator.Validate
 	repository *repository.Repository
 	time       time.Factory
 }
 
 func NewController(
+	logger *slog.Logger,
 	validator *validator.Validate,
 	repository *repository.Repository,
 	time time.Factory,
 ) *Controller {
 	return &Controller{
+		logger:     logger.With("component", "http.controllers.todos"),
 		validator:  validator,
 		repository: repository,
 		time:       time,
@@ -37,7 +40,7 @@ func NewController(
 func (c *Controller) GetTodosController(w http.ResponseWriter, r *http.Request) {
 	todos, err := c.repository.GetTodos(r.Context())
 	if err != nil {
-		slog.Error("failed retrieving todos",
+		c.logger.Error("failed retrieving todos",
 			"error", err,
 		)
 
@@ -50,7 +53,7 @@ func (c *Controller) GetTodosController(w http.ResponseWriter, r *http.Request) 
 
 	bytes, err := response.DataBytes("todos", todos)
 	if err != nil {
-		slog.Error("failed constructing response",
+		c.logger.Error("failed constructing response",
 			"error", err,
 		)
 
@@ -67,7 +70,7 @@ func (c *Controller) GetTodosController(w http.ResponseWriter, r *http.Request) 
 func (c *Controller) GetTodoController(w http.ResponseWriter, r *http.Request) {
 	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		slog.Error("failed parsing uuid",
+		c.logger.Error("failed parsing uuid",
 			"uuid", r.PathValue("id"),
 			"error", err,
 		)
@@ -81,7 +84,7 @@ func (c *Controller) GetTodoController(w http.ResponseWriter, r *http.Request) {
 
 	todo, err := c.repository.GetTodo(r.Context(), id)
 	if errors.Is(err, repository.ErrTodoNotFound) {
-		slog.Error("todo with given id does not exist",
+		c.logger.Error("todo with given id does not exist",
 			"error", err,
 			"id", id.String(),
 		)
@@ -94,7 +97,7 @@ func (c *Controller) GetTodoController(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err != nil {
-		slog.Error("failed retrieving todo",
+		c.logger.Error("failed retrieving todo",
 			"error", err,
 		)
 
@@ -107,7 +110,7 @@ func (c *Controller) GetTodoController(w http.ResponseWriter, r *http.Request) {
 
 	bytes, err := response.DataBytes("todo", todo)
 	if err != nil {
-		slog.Error("failed constructing response",
+		c.logger.Error("failed constructing response",
 			"error", err,
 		)
 
@@ -126,7 +129,7 @@ func (c *Controller) CreateTodoController(w http.ResponseWriter, r *http.Request
 
 	bodyBytes, err := io.ReadAll(body)
 	if err != nil {
-		slog.Error("failed reading request body",
+		c.logger.Error("failed reading request body",
 			"error", err,
 		)
 
@@ -145,7 +148,7 @@ func (c *Controller) CreateTodoController(w http.ResponseWriter, r *http.Request
 
 	err = json.Unmarshal(bodyBytes, &req)
 	if err != nil {
-		slog.Error("failed binding request body",
+		c.logger.Error("failed binding request body",
 			"error", err,
 		)
 
@@ -158,7 +161,7 @@ func (c *Controller) CreateTodoController(w http.ResponseWriter, r *http.Request
 
 	err = c.validator.Struct(req)
 	if err != nil {
-		slog.Warn("failed validating request body",
+		c.logger.Warn("failed validating request body",
 			"error", err,
 		)
 
@@ -176,7 +179,7 @@ func (c *Controller) CreateTodoController(w http.ResponseWriter, r *http.Request
 
 	todo, err = c.repository.CreateTodo(r.Context(), todo)
 	if err != nil {
-		slog.Error("failed creating todo",
+		c.logger.Error("failed creating todo",
 			"error", err,
 		)
 
@@ -189,7 +192,7 @@ func (c *Controller) CreateTodoController(w http.ResponseWriter, r *http.Request
 
 	bytes, err := response.DataBytes("todo", todo)
 	if err != nil {
-		slog.Error("failed constructing response",
+		c.logger.Error("failed constructing response",
 			"error", err,
 		)
 
@@ -207,7 +210,7 @@ func (c *Controller) CreateTodoController(w http.ResponseWriter, r *http.Request
 func (c *Controller) UpdateTodoController(w http.ResponseWriter, r *http.Request) {
 	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		slog.Error("failed parsing uuid",
+		c.logger.Error("failed parsing uuid",
 			"uuid", r.PathValue("id"),
 			"error", err,
 		)
@@ -223,7 +226,7 @@ func (c *Controller) UpdateTodoController(w http.ResponseWriter, r *http.Request
 
 	bodyBytes, err := io.ReadAll(body)
 	if err != nil {
-		slog.Error("failed reading request body",
+		c.logger.Error("failed reading request body",
 			"error", err,
 		)
 
@@ -242,7 +245,7 @@ func (c *Controller) UpdateTodoController(w http.ResponseWriter, r *http.Request
 
 	err = json.Unmarshal(bodyBytes, &req)
 	if err != nil {
-		slog.Error("failed binding request body",
+		c.logger.Error("failed binding request body",
 			"error", err,
 		)
 
@@ -255,7 +258,7 @@ func (c *Controller) UpdateTodoController(w http.ResponseWriter, r *http.Request
 
 	err = c.validator.Struct(req)
 	if err != nil {
-		slog.Warn("failed validating request body",
+		c.logger.Warn("failed validating request body",
 			"error", err,
 		)
 
@@ -276,7 +279,7 @@ func (c *Controller) UpdateTodoController(w http.ResponseWriter, r *http.Request
 
 	todo, err = c.repository.SaveTodo(r.Context(), todo)
 	if errors.Is(err, repository.ErrTodoNotFound) {
-		slog.Warn("failed saving todo",
+		c.logger.Warn("failed saving todo",
 			"error", err,
 			"id", todo.ID,
 		)
@@ -289,7 +292,7 @@ func (c *Controller) UpdateTodoController(w http.ResponseWriter, r *http.Request
 	}
 
 	if err != nil {
-		slog.Error("failed saving todo",
+		c.logger.Error("failed saving todo",
 			"error", err,
 			"id", todo.ID,
 		)
@@ -303,7 +306,7 @@ func (c *Controller) UpdateTodoController(w http.ResponseWriter, r *http.Request
 
 	bytes, err := response.DataBytes("todo", todo)
 	if err != nil {
-		slog.Error("failed constructing response",
+		c.logger.Error("failed constructing response",
 			"error", err,
 		)
 
@@ -321,7 +324,7 @@ func (c *Controller) UpdateTodoController(w http.ResponseWriter, r *http.Request
 func (c *Controller) DeleteTodoController(w http.ResponseWriter, r *http.Request) {
 	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		slog.Error("failed parsing uuid",
+		c.logger.Error("failed parsing uuid",
 			"error", err,
 			"uuid", r.PathValue("id"),
 		)
@@ -335,7 +338,7 @@ func (c *Controller) DeleteTodoController(w http.ResponseWriter, r *http.Request
 
 	err = c.repository.DeleteTodo(r.Context(), id, c.time())
 	if errors.Is(err, repository.ErrTodoNotFound) {
-		slog.Debug("no matching id for todo",
+		c.logger.Debug("no matching id for todo",
 			"id", id,
 		)
 
@@ -347,7 +350,7 @@ func (c *Controller) DeleteTodoController(w http.ResponseWriter, r *http.Request
 	}
 
 	if err != nil {
-		slog.Error("failed deleting todo",
+		c.logger.Error("failed deleting todo",
 			"error", err,
 			"id", id,
 		)

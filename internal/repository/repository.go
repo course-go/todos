@@ -39,7 +39,7 @@ func New(
 	registry *health.Registry,
 	config *config.Database,
 ) (repository *Repository, err error) {
-	logger = logger.With("component", "repository")
+	logger = logger.With("component", "postgres.repository.todos")
 	databaseURL := fmt.Sprintf("%s://%s:%s@%s:%s/%s?%s",
 		config.Protocol,
 		config.User,

@@ -96,7 +96,7 @@ func runApp() error { //nolint: cyclop
 
 	hostname := net.JoinHostPort(config.Service.Host, config.Service.Port)
 	validator := validator.New(validator.WithRequiredStructEnabled())
-	todos := ctodos.NewController(validator, repo, ttime.Now())
+	todos := ctodos.NewController(logger, validator, repo, ttime.Now())
 	health := chealth.NewController(registry)
 
 	server, err := http.NewServer(logger, metrics, hostname, health, todos)
