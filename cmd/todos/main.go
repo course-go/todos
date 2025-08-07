@@ -30,83 +30,68 @@ var (
 	configPathFlag = flag.String("config", "/etc/course-go/todos/config.yaml", "path to config file")
 )
 
-func main() { //nolint: cyclop
+func main() {
+	err := runApp()
+	if err != nil {
+		slog.Error("failed running app",
+			"err", err,
+		)
+		os.Exit(1)
+	}
+}
+
+func runApp() error { //nolint: cyclop
 	flag.Parse()
 
 	if *versionFlag {
 		fmt.Printf("TODOS: [%s]\n", Version) //nolint: forbidigo
-		os.Exit(0)
+		return nil
 	}
 
 	config, err := config.Parse(*configPathFlag)
 	if err != nil {
-		slog.Error("failed parsing config",
-			"error", err,
-		)
-		os.Exit(1)
+		return fmt.Errorf("failed parsing config: %w", err)
 	}
 
 	location, err := time.LoadLocation(config.Location)
 	if err != nil {
-		slog.Error("failed loading location",
-			"error", err,
-			"location", config.Location,
-		)
-		os.Exit(1)
+		return fmt.Errorf("failed loading location %s: %w", config.Location, err)
 	}
 
 	time.Local = location //nolint: gosmopolitan
 
 	logger, err := logger.New(&config.Logging)
 	if err != nil {
-		slog.Error("failed creating logger",
-			"error", err,
-		)
-		os.Exit(1)
+		return fmt.Errorf("failed creating logger: %w", err)
 	}
 
 	err = repository.Migrate(&config.Database, logger)
 	if err != nil {
-		logger.Error("failed migrating database",
-			"error", err,
-		)
-		os.Exit(1)
+		return fmt.Errorf("failed migrating database: %w", err)
 	}
 
 	ctx := context.Background()
 
 	registry, err := health.NewRegistry(ctx, health.WithService(config.Service.Name, Version))
 	if err != nil {
-		logger.Error("failed creating health registry",
-			"error", err,
-		)
-		os.Exit(1)
+		return fmt.Errorf("failed creating health registry: %w", err)
 	}
 
 	repo, err := repository.New(ctx, logger, registry, &config.Database)
 	if err != nil {
-		logger.Error("failed creating todo repository",
-			"error", err,
-		)
-		os.Exit(1)
+		return fmt.Errorf("failed creating todo repository: %w", err)
 	}
 
 	exporter, err := prometheus.New()
 	if err != nil {
-		logger.Error("failed creating prometheus exporter",
-			"error", err,
-		)
-		os.Exit(1)
+		return fmt.Errorf("failed creating prometheus exporter: %w", err)
 	}
 
 	provider := metric.NewMeterProvider(metric.WithReader(exporter))
 
 	metrics, err := metrics.New(provider)
 	if err != nil {
-		logger.Error("failed creating http metrics",
-			"error", err,
-		)
-		os.Exit(1)
+		return fmt.Errorf("failed creating http metrics: %w", err)
 	}
 
 	hostname := net.JoinHostPort(config.Service.Host, config.Service.Port)
@@ -116,10 +101,7 @@ func main() { //nolint: cyclop
 
 	server, err := http.NewServer(logger, metrics, hostname, health, todos)
 	if err != nil {
-		logger.Error("failed creating API router",
-			"error", err,
-		)
-		os.Exit(1)
+		return fmt.Errorf("failed creating http server: %w", err)
 	}
 
 	logger.Info("                                                     ")
@@ -141,9 +123,8 @@ func main() { //nolint: cyclop
 
 	err = server.ListenAndServe()
 	if err != nil {
-		logger.Error("failed running server",
-			"error", err,
-		)
-		os.Exit(1)
+		return fmt.Errorf("failed running http server: %w", err)
 	}
+
+	return nil
 }
