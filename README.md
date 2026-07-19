@@ -1,4 +1,3 @@
-[![Go Report Card](https://goreportcard.com/badge/github.com/course-go/todos)](https://goreportcard.com/report/github.com/course-go/todos)
 ![Go version](https://img.shields.io/github/go-mod/go-version/course-go/todos)
 ![CI status](https://github.com/course-go/todos/actions/workflows/ci-cd.yaml/badge.svg?branch=master)
 [![SonarCloud Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=course-go_todos&metric=alert_status)](https://sonarcloud.io/dashboard?id=course-go_todos)
