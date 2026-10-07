@@ -26,9 +26,10 @@ func TestTodosControllers(t *testing.T) { //nolint: cyclop, maintidx, tparallel
 	r := test.NewTestRouter(ctx, t, logger)
 
 	playGamesTodoID := "62446c85-3798-471f-abb8-75c1cdd7153b"
+	const playGamesDescription = "Play some games"
 
 	t.Run("Get Todos", func(t *testing.T) { //nolint: paralleltest
-		req := httptest.NewRequest(http.MethodGet, apiURLPrefix+"/todos", http.NoBody)
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, apiURLPrefix+"/todos", http.NoBody)
 		rr := httptest.NewRecorder()
 
 		r.ServeHTTP(rr, req)
@@ -59,7 +60,12 @@ func TestTodosControllers(t *testing.T) { //nolint: cyclop, maintidx, tparallel
 	})
 
 	t.Run("Get existing Todo", func(t *testing.T) { //nolint: paralleltest
-		req := httptest.NewRequest(http.MethodGet, apiURLPrefix+"/todos/"+playGamesTodoID, http.NoBody)
+		req := httptest.NewRequestWithContext(
+			t.Context(),
+			http.MethodGet,
+			apiURLPrefix+"/todos/"+playGamesTodoID,
+			http.NoBody,
+		)
 		req.SetPathValue("id", playGamesTodoID)
 
 		rr := httptest.NewRecorder()
@@ -84,7 +90,7 @@ func TestTodosControllers(t *testing.T) { //nolint: cyclop, maintidx, tparallel
 
 	t.Run("Get non-existing Todo", func(t *testing.T) { //nolint: paralleltest
 		todoID := "d8d5141a-ad8c-486a-9d4d-6bda9c7cb33c"
-		req := httptest.NewRequest(http.MethodGet, apiURLPrefix+"/todos/"+todoID, http.NoBody)
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, apiURLPrefix+"/todos/"+todoID, http.NoBody)
 		req.SetPathValue("id", todoID)
 
 		rr := httptest.NewRecorder()
@@ -101,7 +107,7 @@ func TestTodosControllers(t *testing.T) { //nolint: cyclop, maintidx, tparallel
 
 	t.Run("Create Todo", func(t *testing.T) { //nolint: paralleltest
 		body := request.CreateTodoRequest{
-			Description: "Play some games",
+			Description: playGamesDescription,
 		}
 
 		actualBodyBytes, err := json.Marshal(&body)
@@ -110,7 +116,7 @@ func TestTodosControllers(t *testing.T) { //nolint: cyclop, maintidx, tparallel
 		}
 
 		reader := bytes.NewReader(actualBodyBytes)
-		req := httptest.NewRequest(http.MethodPost, apiURLPrefix+"/todos", reader)
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, apiURLPrefix+"/todos", reader)
 		rr := httptest.NewRecorder()
 
 		r.ServeHTTP(rr, req)
@@ -172,7 +178,7 @@ func TestTodosControllers(t *testing.T) { //nolint: cyclop, maintidx, tparallel
 		}
 
 		reader := bytes.NewReader(actualBodyBytes)
-		req := httptest.NewRequest(http.MethodPost, apiURLPrefix+"/todos", reader)
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, apiURLPrefix+"/todos", reader)
 		rr := httptest.NewRecorder()
 
 		r.ServeHTTP(rr, req)
@@ -192,7 +198,7 @@ func TestTodosControllers(t *testing.T) { //nolint: cyclop, maintidx, tparallel
 		}
 
 		body := request.UpdateTodoRequest{
-			Description: "Play some games",
+			Description: playGamesDescription,
 			CompletedAt: &completedAt,
 		}
 
@@ -202,7 +208,12 @@ func TestTodosControllers(t *testing.T) { //nolint: cyclop, maintidx, tparallel
 		}
 
 		reader := bytes.NewReader(actualBodyBytes)
-		req := httptest.NewRequest(http.MethodPut, apiURLPrefix+"/todos/"+playGamesTodoID, reader)
+		req := httptest.NewRequestWithContext(
+			t.Context(),
+			http.MethodPut,
+			apiURLPrefix+"/todos/"+playGamesTodoID,
+			reader,
+		)
 		req.SetPathValue("id", playGamesTodoID)
 
 		rr := httptest.NewRecorder()
@@ -234,7 +245,7 @@ func TestTodosControllers(t *testing.T) { //nolint: cyclop, maintidx, tparallel
 		}
 
 		body := request.UpdateTodoRequest{
-			Description: "Play some games",
+			Description: playGamesDescription,
 			CompletedAt: &completedAt,
 		}
 
@@ -245,7 +256,7 @@ func TestTodosControllers(t *testing.T) { //nolint: cyclop, maintidx, tparallel
 
 		reader := bytes.NewReader(actualBodyBytes)
 		todoID := "cba6b1a9-3533-4eff-8649-a075229b1c3d"
-		req := httptest.NewRequest(http.MethodPut, apiURLPrefix+"/todos/"+todoID, reader)
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodPut, apiURLPrefix+"/todos/"+todoID, reader)
 		req.SetPathValue("id", todoID)
 
 		rr := httptest.NewRecorder()
@@ -276,7 +287,12 @@ func TestTodosControllers(t *testing.T) { //nolint: cyclop, maintidx, tparallel
 		}
 
 		reader := bytes.NewReader(actualBodyBytes)
-		req := httptest.NewRequest(http.MethodPut, apiURLPrefix+"/todos/"+playGamesTodoID, reader)
+		req := httptest.NewRequestWithContext(
+			t.Context(),
+			http.MethodPut,
+			apiURLPrefix+"/todos/"+playGamesTodoID,
+			reader,
+		)
 		req.SetPathValue("id", playGamesTodoID)
 
 		rr := httptest.NewRecorder()
@@ -292,7 +308,12 @@ func TestTodosControllers(t *testing.T) { //nolint: cyclop, maintidx, tparallel
 	})
 
 	t.Run("Delete existing Todo", func(t *testing.T) { //nolint: paralleltest
-		req := httptest.NewRequest(http.MethodDelete, apiURLPrefix+"/todos/"+playGamesTodoID, http.NoBody)
+		req := httptest.NewRequestWithContext(
+			t.Context(),
+			http.MethodDelete,
+			apiURLPrefix+"/todos/"+playGamesTodoID,
+			http.NoBody,
+		)
 		req.SetPathValue("id", playGamesTodoID)
 
 		rr := httptest.NewRecorder()
@@ -316,7 +337,12 @@ func TestTodosControllers(t *testing.T) { //nolint: cyclop, maintidx, tparallel
 
 	t.Run("Delete non-existing Todo", func(t *testing.T) { //nolint: paralleltest
 		todoID := "d06c0dd1-d7ae-4ca7-8df4-86a6b62f349d"
-		req := httptest.NewRequest(http.MethodDelete, apiURLPrefix+"/todos/"+todoID, http.NoBody)
+		req := httptest.NewRequestWithContext(
+			t.Context(),
+			http.MethodDelete,
+			apiURLPrefix+"/todos/"+todoID,
+			http.NoBody,
+		)
 		req.SetPathValue("id", todoID)
 
 		rr := httptest.NewRecorder()

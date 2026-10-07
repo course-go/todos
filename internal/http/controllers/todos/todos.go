@@ -121,7 +121,7 @@ func (c *Controller) GetTodoController(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, _ = w.Write(bytes)
+	_, _ = w.Write(bytes) //nolint: gosec // JSON response body, not HTML
 }
 
 func (c *Controller) CreateTodoController(w http.ResponseWriter, r *http.Request) {
