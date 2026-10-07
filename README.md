@@ -14,10 +14,10 @@ This project uses:
 - [chi](https://github.com/go-chi/chi/) for routing
 - [go-playground/validator](https://github.com/go-playground/validator) for input validation
 - [pgx](https://github.com/jackc/pgx) for database access
-- [migrate](https://github.com/jackc/pgx) for managing database migrations
+- [migrate](https://github.com/golang-migrate/migrate) for managing database migrations
 - [slog](https://pkg.go.dev/log/slog) for logging
 - [uuid](https://github.com/google/uuid) for IDs
 - [go-cmp](https://github.com/google/go-cmp) for struct comparisons
 - [testcontainers](https://github.com/testcontainers/testcontainers-go) for testing with dependencies
-- [promethues/client_golang](github.com/prometheus/client_golang) for exporting Prometheus metrics
-- [opentelemetry-go](go.opentelemetry.io/otel) for instrumenting telemetry
+- [prometheus/client_golang](https://github.com/prometheus/client_golang) for exporting Prometheus metrics
+- [opentelemetry-go](https://github.com/open-telemetry/opentelemetry-go) for instrumenting telemetry
