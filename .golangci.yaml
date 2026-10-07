@@ -9,12 +9,14 @@ linters:
   disable:
     # restrictive
     - exhaustruct
+    - exhaustruct_v5
     - varnamelen
     - nlreturn
     - funlen
     - nonamedreturns
     - gochecknoglobals
     - wsl
+    - wsl_v5
     - nakedret
     - err113
     - godox

@@ -23,7 +23,7 @@ const (
 	dbName = "todos"
 
 	dbWaitLogOccurrences = 2
-	dbWaitLogTimeout     = 5 * time.Second
+	dbWaitLogTimeout     = 30 * time.Second
 )
 
 func NewTestRepository(
